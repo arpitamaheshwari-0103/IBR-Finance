@@ -3,73 +3,17 @@ import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 
-# ─────────────────────────────────────────────
+# ---------------------------------------------------
 # PAGE CONFIG
-# ─────────────────────────────────────────────
+# ---------------------------------------------------
 st.set_page_config(
     page_title="India Banking Transformation Dashboard",
-    page_icon="🏦",
-    layout="wide",
-    initial_sidebar_state="expanded"
+    layout="wide"
 )
 
-# ─────────────────────────────────────────────
-# CUSTOM CSS
-# ─────────────────────────────────────────────
-st.markdown("""
-<style>
-
-.stApp {
-    background-color: #0B1120;
-    color: white;
-}
-
-[data-testid="stSidebar"] {
-    background-color: #111827;
-    padding-top: 20px;
-}
-
-h1, h2, h3, h4 {
-    color: white;
-}
-
-section[data-testid="stSidebar"] {
-    min-width: 300px !important;
-    max-width: 300px !important;
-}
-
-.metric-card {
-    background: linear-gradient(135deg, #111827, #1F2937);
-    padding: 20px;
-    border-radius: 15px;
-    border: 1px solid rgba(255,255,255,0.08);
-    box-shadow: 0px 4px 20px rgba(0,0,0,0.25);
-}
-
-.insight-box {
-    background-color: #111827;
-    border-left: 5px solid #3B82F6;
-    padding: 20px;
-    border-radius: 12px;
-    margin-top: 15px;
-    margin-bottom: 15px;
-}
-
-.small-text {
-    color: #9CA3AF;
-    font-size: 14px;
-}
-
-hr {
-    border-color: rgba(255,255,255,0.08);
-}
-
-</style>
-""", unsafe_allow_html=True)
-
-# ─────────────────────────────────────────────
+# ---------------------------------------------------
 # LOAD DATA
-# ─────────────────────────────────────────────
+# ---------------------------------------------------
 @st.cache_data
 def load_data():
 
@@ -81,11 +25,12 @@ def load_data():
 
 df = load_data()
 
-# ─────────────────────────────────────────────
+# ---------------------------------------------------
 # SIDEBAR
-# ─────────────────────────────────────────────
-st.sidebar.title("🏦 Dashboard Controls")
+# ---------------------------------------------------
+st.sidebar.title("Dashboard Controls")
 
+# Year Filter
 year_range = st.sidebar.slider(
     "Select Year Range",
     int(df["Month_Year"].dt.year.min()),
@@ -96,6 +41,7 @@ year_range = st.sidebar.slider(
     )
 )
 
+# Variable Selection
 selected_variables = st.sidebar.multiselect(
     "Select Variables",
     [
@@ -110,38 +56,43 @@ selected_variables = st.sidebar.multiselect(
     ]
 )
 
-log_scale = st.sidebar.toggle("Use Log Scale", value=False)
+# Comparison Selector
+comparison_var = st.sidebar.selectbox(
+    "Compare UPI Against",
+    [
+        "ATM_Withdrawals",
+        "DebitCard_POS",
+        "IMPS"
+    ]
+)
 
-show_markers = st.sidebar.toggle("Show Event Markers", value=True)
+# Scale Toggle
+use_log = st.sidebar.toggle("Use Log Scale", value=False)
 
-# ─────────────────────────────────────────────
+# ---------------------------------------------------
 # FILTER DATA
-# ─────────────────────────────────────────────
+# ---------------------------------------------------
 filtered_df = df[
     (df["Month_Year"].dt.year >= year_range[0]) &
     (df["Month_Year"].dt.year <= year_range[1])
 ]
 
-# ─────────────────────────────────────────────
+# ---------------------------------------------------
 # HEADER
-# ─────────────────────────────────────────────
-st.title("🏦 India Banking Transformation Intelligence Dashboard")
+# ---------------------------------------------------
+st.title("India Banking Transformation Dashboard")
 
 st.markdown("""
 ### FinTech’s Contribution to Transforming Conventional Banking: The Indian Experience
 """)
 
-st.markdown("""
-<div class='small-text'>
-Interactive analytics dashboard using RBI DBIE and NPCI transaction data (2018–2026)
-</div>
-""", unsafe_allow_html=True)
+st.caption("Interactive analysis of India’s payment ecosystem using RBI DBIE and NPCI data")
 
 st.markdown("---")
 
-# ─────────────────────────────────────────────
+# ---------------------------------------------------
 # KPI SECTION
-# ─────────────────────────────────────────────
+# ---------------------------------------------------
 col1, col2, col3, col4 = st.columns(4)
 
 upi_growth = round(
@@ -154,105 +105,235 @@ upi_growth = round(
     1
 )
 
+atm_change = round(
+    (
+        (
+            filtered_df["ATM_Withdrawals"].iloc[-1] /
+            filtered_df["ATM_Withdrawals"].iloc[0]
+        ) - 1
+    ) * 100,
+    1
+)
+
 corr_value = round(
     filtered_df["UPI_Transactions"].corr(
-        filtered_df["ATM_Withdrawals"]
+        filtered_df[comparison_var]
     ),
     3
 )
 
 with col1:
     st.metric(
-        "Latest UPI Transactions",
-        f"{filtered_df['UPI_Transactions'].iloc[-1]:,.0f} M",
-        "+14,000%+ Growth"
+        "UPI Growth",
+        f"{upi_growth:,.1f}%",
+        "Since Selected Period"
     )
 
 with col2:
     st.metric(
-        "Peak ATM Withdrawals",
-        f"{filtered_df['ATM_Withdrawals'].max():,.0f} M",
-        "Gradual Decline"
+        "ATM Withdrawal Change",
+        f"{atm_change:,.1f}%",
+        "Structural Shift"
     )
 
 with col3:
     st.metric(
-        "UPI-ATM Correlation",
+        f"UPI vs {comparison_var}",
         corr_value,
-        "Inverse Relationship"
+        "Relationship Strength"
     )
 
 with col4:
     st.metric(
         "Observations",
         len(filtered_df),
-        "Monthly Data Points"
+        "Monthly Data"
     )
 
 st.markdown("---")
 
-# ─────────────────────────────────────────────
-# MAIN TREND CHART
-# ─────────────────────────────────────────────
-st.subheader("📈 Payment System Transformation Trends")
+# ---------------------------------------------------
+# MAIN TREND ANALYSIS
+# ---------------------------------------------------
+st.subheader("Payment System Transformation Trends")
 
-fig = px.line(
+trend_fig = px.line(
     filtered_df,
     x="Month_Year",
     y=selected_variables,
-    markers=True,
-    template="plotly_dark"
+    markers=True
 )
 
-fig.update_layout(
-    height=550,
-    paper_bgcolor="#0B1120",
-    plot_bgcolor="#0B1120",
-    font=dict(color="white"),
-    legend_title="Variables",
+trend_fig.update_layout(
     xaxis_title="Year",
-    yaxis_title="Transactions (Million)",
-    hovermode="x unified"
+    yaxis_title="Transaction Volume (Million)",
+    hovermode="x unified",
+    height=500
 )
 
-if log_scale:
-    fig.update_yaxes(type="log")
+if use_log:
+    trend_fig.update_yaxes(type="log")
 
-if show_markers:
+st.plotly_chart(trend_fig, use_container_width=True)
 
-    fig.add_vline(
-        x="2020-04-01",
-        line_dash="dash",
-        line_color="red",
-        annotation_text="COVID Shock"
-    )
+# ---------------------------------------------------
+# WHAT CHANGED SECTION
+# ---------------------------------------------------
+st.subheader("What Changed During This Period?")
 
-    fig.add_vline(
-        x="2019-11-01",
-        line_dash="dash",
-        line_color="orange",
-        annotation_text="RBI POS Reporting Change"
-    )
+upi_change = round(
+    (
+        (
+            filtered_df["UPI_Transactions"].iloc[-1] -
+            filtered_df["UPI_Transactions"].iloc[0]
+        )
+        /
+        filtered_df["UPI_Transactions"].iloc[0]
+    ) * 100,
+    1
+)
 
-st.plotly_chart(fig, use_container_width=True)
+atm_decline = round(
+    (
+        (
+            filtered_df["ATM_Withdrawals"].iloc[-1] -
+            filtered_df["ATM_Withdrawals"].iloc[0]
+        )
+        /
+        filtered_df["ATM_Withdrawals"].iloc[0]
+    ) * 100,
+    1
+)
 
-# ─────────────────────────────────────────────
-# STRATEGIC INSIGHT BOX
-# ─────────────────────────────────────────────
-st.markdown("""
-<div class='insight-box'>
-<h4>🔍 What This Suggests</h4>
+st.info(f"""
+Between {year_range[0]} and {year_range[1]},
+UPI transactions changed by {upi_change}% while ATM withdrawals changed by {atm_decline}%.
 
-The divergence between rapidly increasing UPI transactions and gradually declining ATM withdrawals suggests that India is witnessing behavioural payment substitution rather than complete cash elimination.
+This suggests that digital payment adoption is increasing rapidly, but cash usage has not disappeared completely, indicating behavioural substitution rather than full cash elimination.
+""")
 
-The findings indicate a broader transformation in banking infrastructure, transaction behaviour, and payment ecosystem dependence rather than just growth in digital transactions.
-</div>
-""", unsafe_allow_html=True)
+# ---------------------------------------------------
+# COMPARATIVE ANALYSIS
+# ---------------------------------------------------
+st.subheader("UPI Relationship Analysis")
 
-# ─────────────────────────────────────────────
-# CORRELATION ANALYSIS
-# ─────────────────────────────────────────────
-st.subheader("🔗 Correlation Intelligence")
+comparison_fig = px.scatter(
+    filtered_df,
+    x="UPI_Transactions",
+    y=comparison_var,
+    trendline="ols"
+)
+
+comparison_fig.update_layout(
+    xaxis_title="UPI Transactions",
+    yaxis_title=comparison_var,
+    height=500
+)
+
+st.plotly_chart(comparison_fig, use_container_width=True)
+
+# ---------------------------------------------------
+# PAYMENT SHARE ANALYSIS
+# ---------------------------------------------------
+st.subheader("Payment Ecosystem Share Analysis")
+
+share_df = filtered_df.copy()
+
+share_df["Total"] = (
+    share_df["UPI_Transactions"] +
+    share_df["ATM_Withdrawals"] +
+    share_df["DebitCard_POS"] +
+    share_df["IMPS"]
+)
+
+share_df["UPI Share"] = (
+    share_df["UPI_Transactions"] /
+    share_df["Total"]
+) * 100
+
+share_df["ATM Share"] = (
+    share_df["ATM_Withdrawals"] /
+    share_df["Total"]
+) * 100
+
+share_df["POS Share"] = (
+    share_df["DebitCard_POS"] /
+    share_df["Total"]
+) * 100
+
+share_df["IMPS Share"] = (
+    share_df["IMPS"] /
+    share_df["Total"]
+) * 100
+
+share_chart = px.area(
+    share_df,
+    x="Month_Year",
+    y=[
+        "UPI Share",
+        "ATM Share",
+        "POS Share",
+        "IMPS Share"
+    ]
+)
+
+share_chart.update_layout(
+    yaxis_title="Share of Payment Ecosystem (%)",
+    height=500
+)
+
+st.plotly_chart(share_chart, use_container_width=True)
+
+# ---------------------------------------------------
+# ROLLING CORRELATION
+# ---------------------------------------------------
+st.subheader("Rolling Correlation Analysis")
+
+rolling_df = filtered_df.copy()
+
+rolling_df["Rolling_Correlation"] = (
+    rolling_df["UPI_Transactions"]
+    .rolling(window=12)
+    .corr(rolling_df["ATM_Withdrawals"])
+)
+
+rolling_chart = px.line(
+    rolling_df,
+    x="Month_Year",
+    y="Rolling_Correlation"
+)
+
+rolling_chart.update_layout(
+    yaxis_title="12-Month Rolling Correlation",
+    height=450
+)
+
+st.plotly_chart(rolling_chart, use_container_width=True)
+
+# ---------------------------------------------------
+# INFRASTRUCTURE STRESS INDICATOR
+# ---------------------------------------------------
+st.subheader("Infrastructure Perspective")
+
+if upi_growth > 500 and atm_change > -40:
+
+    st.warning("""
+Digital transactions are growing significantly faster than ATM withdrawals are declining.
+
+This suggests that banks may currently face a dual-infrastructure burden:
+maintaining cash infrastructure while simultaneously investing in digital payment ecosystems.
+""")
+
+else:
+
+    st.success("""
+The data suggests that digital substitution is occurring more uniformly across payment infrastructure.
+""")
+
+# ---------------------------------------------------
+# CORRELATION HEATMAP
+# ---------------------------------------------------
+st.subheader("Correlation Matrix")
 
 corr_df = filtered_df[
     [
@@ -266,104 +347,82 @@ corr_df = filtered_df[
 heatmap = px.imshow(
     corr_df,
     text_auto=True,
-    color_continuous_scale="Blues",
-    template="plotly_dark"
+    color_continuous_scale="Blues"
 )
 
 heatmap.update_layout(
-    height=500,
-    paper_bgcolor="#0B1120",
-    plot_bgcolor="#0B1120",
-    font=dict(color="white")
+    height=500
 )
 
 st.plotly_chart(heatmap, use_container_width=True)
 
-# ─────────────────────────────────────────────
-# COMPARATIVE ANALYSIS
-# ─────────────────────────────────────────────
-st.subheader("📊 Comparative Annual Analysis")
+# ---------------------------------------------------
+# KEY TAKEAWAY GENERATOR
+# ---------------------------------------------------
+st.subheader("Key Takeaway Generator")
 
-annual_df = filtered_df.copy()
+if corr_value < -0.5:
 
-annual_df["Year"] = annual_df["Month_Year"].dt.year
+    st.info(f"""
+The relationship between UPI transactions and {comparison_var}
+shows a strong inverse relationship.
 
-annual_summary = annual_df.groupby("Year")[
-    [
-        "UPI_Transactions",
-        "ATM_Withdrawals",
-        "DebitCard_POS",
-        "IMPS"
-    ]
-].mean().reset_index()
+This may indicate measurable substitution effects between digital payment adoption and conventional banking activity.
+""")
 
-bar_fig = px.bar(
-    annual_summary,
-    x="Year",
-    y=selected_variables,
-    barmode="group",
-    template="plotly_dark"
-)
+elif corr_value > 0.5:
 
-bar_fig.update_layout(
-    height=500,
-    paper_bgcolor="#0B1120",
-    plot_bgcolor="#0B1120",
-    font=dict(color="white")
-)
+    st.info(f"""
+UPI transactions and {comparison_var}
+appear to move together positively.
 
-st.plotly_chart(bar_fig, use_container_width=True)
+This may indicate complementary growth within India’s digital transaction ecosystem rather than direct substitution.
+""")
 
-# ─────────────────────────────────────────────
-# ATM INFRASTRUCTURE INSIGHT
-# ─────────────────────────────────────────────
-st.markdown("""
-<div class='insight-box'>
-<h4>🏧 Infrastructure Perspective</h4>
+else:
 
-The study suggests that while digital transaction infrastructure is expanding exponentially, physical banking infrastructure cannot disappear immediately.
+    st.info(f"""
+The relationship between UPI transactions and {comparison_var}
+appears moderate or mixed, suggesting that multiple ecosystem factors may influence the observed trends.
+""")
 
-This indicates that banks face a dual challenge:
-maintaining ATM infrastructure for financial inclusion while simultaneously investing heavily in digital payment ecosystems.
-</div>
-""", unsafe_allow_html=True)
-
-# ─────────────────────────────────────────────
+# ---------------------------------------------------
 # FUTURE ECOSYSTEM FACTORS
-# ─────────────────────────────────────────────
-st.subheader("🌐 Ecosystem & External Drivers")
+# ---------------------------------------------------
+st.subheader("Potential External Drivers")
 
 col_a, col_b = st.columns(2)
 
 with col_a:
-    st.info("""
+
+    st.write("""
 ### Demand-Side Drivers
 
-- Smartphone penetration  
-- Merchant QR adoption  
-- Consumer convenience behaviour  
-- Contactless transaction preference  
-- Digital literacy growth  
+- Smartphone penetration
+- QR code adoption
+- Digital literacy
+- Consumer convenience
+- Contactless payment preference
 """)
 
 with col_b:
-    st.info("""
-### Policy & Infrastructure Drivers
 
-- RBI digital initiatives  
-- NPCI ecosystem expansion  
-- Internet accessibility  
-- Government digital push  
-- Financial inclusion programs  
+    st.write("""
+### Infrastructure & Policy Drivers
+
+- RBI digital initiatives
+- NPCI ecosystem expansion
+- Internet accessibility
+- Financial inclusion programs
+- COVID behavioural shifts
 """)
 
-# ─────────────────────────────────────────────
+# ---------------------------------------------------
 # FOOTER
-# ─────────────────────────────────────────────
+# ---------------------------------------------------
 st.markdown("---")
 
 st.caption(
-    "Source: RBI DBIE Table 45 & NPCI Monthly Statistics | MBA Research Dashboard"
+    "Source: RBI DBIE Table 45 & NPCI Monthly Statistics"
 )
-
 
