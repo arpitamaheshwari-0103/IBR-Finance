@@ -27,10 +27,10 @@ df = load_data()
 # ---------------------------------------------------
 # SIDEBAR
 # ---------------------------------------------------
-st.sidebar.title("Dashboard Controls")
+st.sidebar.title("Explore the Study")
 
 year_range = st.sidebar.slider(
-    "Select Year Range",
+    "Select Time Period",
     int(df["Month_Year"].dt.year.min()),
     int(df["Month_Year"].dt.year.max()),
     (
@@ -54,11 +54,23 @@ selected_variables = st.sidebar.multiselect(
 )
 
 comparison_var = st.sidebar.selectbox(
-    "Compare UPI Against",
+    "Relationship Analysis",
     [
         "ATM_Withdrawals",
         "DebitCard_POS",
         "IMPS"
+    ]
+)
+
+analysis_theme = st.sidebar.selectbox(
+    "Select Insight Theme",
+    [
+        "Digital vs Cash Transition",
+        "Banking Infrastructure Impact",
+        "COVID Behavioural Shift",
+        "Payment Ecosystem Evolution",
+        "Financial Inclusion Perspective",
+        "Future Banking Implications"
     ]
 )
 
@@ -81,7 +93,9 @@ st.markdown("""
 ### FinTech’s Contribution to Transforming Conventional Banking: The Indian Experience
 """)
 
-st.caption("Interactive analysis using RBI DBIE and NPCI data")
+st.caption(
+    "Interactive analytical dashboard using RBI DBIE and NPCI transaction data"
+)
 
 st.markdown("---")
 
@@ -148,7 +162,7 @@ with col4:
 st.markdown("---")
 
 # ---------------------------------------------------
-# MAIN TREND ANALYSIS
+# TREND ANALYSIS
 # ---------------------------------------------------
 st.subheader("Payment System Transformation Trends")
 
@@ -172,126 +186,31 @@ if use_log:
 st.plotly_chart(trend_fig, use_container_width=True)
 
 # ---------------------------------------------------
-# RESEARCH INSIGHT EXPLORER
+# TREND INSIGHT
 # ---------------------------------------------------
-st.subheader("Research Insight Explorer")
+st.markdown("### Key Observation")
 
-st.markdown("""
-Select a research theme or ask a question to explore insights derived from the study.
+st.info("""
+The data shows that digital payment systems expanded significantly during the observed period, particularly after 2020. However, conventional banking activities such as ATM withdrawals continued at meaningful levels despite digital acceleration.
 """)
 
-insight_option = st.selectbox(
-    "Choose an Insight Area",
-    [
-        "UPI vs ATM Relationship",
-        "COVID Impact on Digital Payments",
-        "Infrastructure Implications",
-        "Digital Payment Ecosystem",
-        "ATM Persistence Despite UPI Growth",
-        "Future Banking Implications"
-    ]
-)
+st.markdown("### Strategic Interpretation")
 
-if insight_option == "UPI vs ATM Relationship":
-
-    st.info(f"""
-The selected period shows a correlation of {corr_value} between UPI transactions and ATM withdrawals.
-
-The findings suggest that as UPI transactions expanded rapidly, ATM withdrawals gradually weakened. However, ATM activity did not disappear completely, indicating coexistence between digital payments and cash usage.
+st.success("""
+The findings suggest that India’s banking transformation represents gradual behavioural substitution rather than immediate elimination of conventional banking channels.
 """)
 
-elif insight_option == "COVID Impact on Digital Payments":
+st.markdown("### Possible Banking Implication")
 
-    st.info("""
-Transaction trends after 2020 suggest that digital payment adoption accelerated significantly during and after the COVID period.
-
-The data indicates stronger behavioural reliance on digital transactions after the pandemic disruption.
+st.warning("""
+Banks may continue facing a dual infrastructure challenge:
+maintaining physical banking infrastructure while simultaneously investing in digital transaction ecosystems.
 """)
 
-elif insight_option == "Infrastructure Implications":
-
-    st.info("""
-The study suggests that banks may face a dual infrastructure challenge:
-maintaining physical ATM infrastructure while simultaneously investing in digital transaction ecosystems.
-""")
-
-elif insight_option == "Digital Payment Ecosystem":
-
-    st.info("""
-The findings indicate that UPI growth is occurring alongside expansion in other digital transaction systems such as IMPS and POS transactions.
-
-This may suggest ecosystem-wide digital integration rather than isolated platform growth.
-""")
-
-elif insight_option == "ATM Persistence Despite UPI Growth":
-
-    st.info("""
-Despite exponential growth in UPI transactions, ATM withdrawals continue at meaningful levels.
-
-This may indicate that cash dependency still persists across certain economic segments and transaction categories.
-""")
-
-elif insight_option == "Future Banking Implications":
-
-    st.info("""
-The observed payment trends may influence future banking strategy in areas such as ATM infrastructure planning, digital investment allocation, merchant onboarding, and transaction ecosystem expansion.
-""")
-
-# ---------------------------------------------------
-# USER QUERY SECTION
-# ---------------------------------------------------
 st.markdown("---")
 
-st.subheader("Ask the Dashboard")
-
-user_query = st.text_input(
-    "Ask a question about the study"
-)
-
-if user_query:
-
-    query = user_query.lower()
-
-    if "atm" in query and "upi" in query:
-
-        st.success("""
-The study finds a negative relationship between UPI transactions and ATM withdrawals, suggesting measurable digital substitution effects within the banking ecosystem.
-""")
-
-    elif "covid" in query:
-
-        st.success("""
-The data suggests digital transaction growth accelerated significantly after 2020, indicating behavioural changes following the COVID disruption period.
-""")
-
-    elif "future" in query or "banking" in query:
-
-        st.success("""
-The findings may have implications for banking infrastructure strategy, particularly regarding digital ecosystem investment and ATM network optimization.
-""")
-
-    elif "cash" in query:
-
-        st.success("""
-The findings suggest that cash usage continues to persist despite rapid digital growth, indicating coexistence rather than immediate elimination of cash transactions.
-""")
-
-    else:
-
-        st.warning("""
-No direct insight found for this query.
-
-Try asking about:
-- UPI
-- ATM
-- COVID
-- banking strategy
-- cash usage
-- infrastructure
-""")
-
 # ---------------------------------------------------
-# COMPARATIVE ANALYSIS
+# RELATIONSHIP ANALYSIS
 # ---------------------------------------------------
 st.subheader("UPI Relationship Analysis")
 
@@ -310,6 +229,37 @@ comparison_fig.update_layout(
 st.plotly_chart(comparison_fig, use_container_width=True)
 
 # ---------------------------------------------------
+# RELATIONSHIP INSIGHT
+# ---------------------------------------------------
+st.markdown("### Relationship Insight")
+
+if corr_value < -0.5:
+
+    st.info(f"""
+The relationship between UPI transactions and {comparison_var} appears strongly negative during the selected period.
+
+This may suggest measurable substitution effects between digital transaction adoption and conventional banking activity.
+""")
+
+elif corr_value > 0.5:
+
+    st.info(f"""
+UPI transactions and {comparison_var} appear to move together positively.
+
+This may indicate complementary ecosystem growth rather than direct substitution.
+""")
+
+else:
+
+    st.info(f"""
+The relationship between UPI transactions and {comparison_var} appears moderate or mixed.
+
+This suggests that multiple ecosystem and behavioural factors may simultaneously influence the observed trends.
+""")
+
+st.markdown("---")
+
+# ---------------------------------------------------
 # PAYMENT SHARE ANALYSIS
 # ---------------------------------------------------
 st.subheader("Payment Ecosystem Share Analysis")
@@ -324,22 +274,26 @@ share_df["Total"] = (
 )
 
 share_df["UPI Share"] = (
-    share_df["UPI_Transactions"] /
+    share_df["UPI_Transactions"]
+    /
     share_df["Total"]
 ) * 100
 
 share_df["ATM Share"] = (
-    share_df["ATM_Withdrawals"] /
+    share_df["ATM_Withdrawals"]
+    /
     share_df["Total"]
 ) * 100
 
 share_df["POS Share"] = (
-    share_df["DebitCard_POS"] /
+    share_df["DebitCard_POS"]
+    /
     share_df["Total"]
 ) * 100
 
 share_df["IMPS Share"] = (
-    share_df["IMPS"] /
+    share_df["IMPS"]
+    /
     share_df["Total"]
 ) * 100
 
@@ -362,7 +316,20 @@ share_chart.update_layout(
 st.plotly_chart(share_chart, use_container_width=True)
 
 # ---------------------------------------------------
-# ROLLING CORRELATION
+# ECOSYSTEM INSIGHT
+# ---------------------------------------------------
+st.markdown("### Ecosystem Insight")
+
+st.info("""
+The payment ecosystem composition changed significantly during the observed period, with UPI gradually occupying a larger share of transaction activity.
+
+This suggests ecosystem-wide digital integration rather than isolated platform expansion.
+""")
+
+st.markdown("---")
+
+# ---------------------------------------------------
+# ROLLING CORRELATION ANALYSIS
 # ---------------------------------------------------
 st.subheader("Rolling Correlation Analysis")
 
@@ -386,6 +353,62 @@ rolling_chart.update_layout(
 )
 
 st.plotly_chart(rolling_chart, use_container_width=True)
+
+# ---------------------------------------------------
+# ROLLING CORRELATION INSIGHT
+# ---------------------------------------------------
+st.markdown("### Dynamic Relationship Interpretation")
+
+st.info("""
+The rolling correlation analysis helps observe how the relationship between UPI transactions and ATM withdrawals evolved over time rather than remaining static.
+
+This allows exploration of whether digital substitution effects strengthened, weakened, or stabilised during different phases of India’s banking transformation.
+""")
+
+st.markdown("---")
+
+# ---------------------------------------------------
+# HIDDEN INSIGHTS SECTION
+# ---------------------------------------------------
+st.subheader("Insights Beyond the Obvious")
+
+if analysis_theme == "Digital vs Cash Transition":
+
+    st.success("""
+Even with rapid digital transaction growth, cash infrastructure continues to remain structurally relevant within the Indian economy.
+""")
+
+elif analysis_theme == "Banking Infrastructure Impact":
+
+    st.success("""
+Banks may need to continue financing both ATM infrastructure and digital payment ecosystems simultaneously during the transition phase.
+""")
+
+elif analysis_theme == "COVID Behavioural Shift":
+
+    st.success("""
+The acceleration in digital transactions after 2020 suggests that the pandemic may have permanently influenced consumer transaction behaviour.
+""")
+
+elif analysis_theme == "Payment Ecosystem Evolution":
+
+    st.success("""
+The findings suggest broader transaction ecosystem transformation rather than growth of a single payment platform alone.
+""")
+
+elif analysis_theme == "Financial Inclusion Perspective":
+
+    st.success("""
+Persistent ATM usage may indicate uneven digital penetration across demographic or geographic segments within India.
+""")
+
+elif analysis_theme == "Future Banking Implications":
+
+    st.success("""
+Future banking strategies may increasingly focus on digital infrastructure optimisation, merchant ecosystem expansion, and transaction platform integration.
+""")
+
+st.markdown("---")
 
 # ---------------------------------------------------
 # CORRELATION MATRIX
