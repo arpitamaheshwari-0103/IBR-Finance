@@ -1,7 +1,6 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
-import plotly.graph_objects as go
 
 # ---------------------------------------------------
 # PAGE CONFIG
@@ -30,7 +29,6 @@ df = load_data()
 # ---------------------------------------------------
 st.sidebar.title("Dashboard Controls")
 
-# Year Filter
 year_range = st.sidebar.slider(
     "Select Year Range",
     int(df["Month_Year"].dt.year.min()),
@@ -41,7 +39,6 @@ year_range = st.sidebar.slider(
     )
 )
 
-# Variable Selection
 selected_variables = st.sidebar.multiselect(
     "Select Variables",
     [
@@ -56,7 +53,6 @@ selected_variables = st.sidebar.multiselect(
     ]
 )
 
-# Comparison Selector
 comparison_var = st.sidebar.selectbox(
     "Compare UPI Against",
     [
@@ -66,7 +62,6 @@ comparison_var = st.sidebar.selectbox(
     ]
 )
 
-# Scale Toggle
 use_log = st.sidebar.toggle("Use Log Scale", value=False)
 
 # ---------------------------------------------------
@@ -86,7 +81,7 @@ st.markdown("""
 ### FinTech’s Contribution to Transforming Conventional Banking: The Indian Experience
 """)
 
-st.caption("Interactive analysis of India’s payment ecosystem using RBI DBIE and NPCI data")
+st.caption("Interactive analysis using RBI DBIE and NPCI data")
 
 st.markdown("---")
 
@@ -98,7 +93,8 @@ col1, col2, col3, col4 = st.columns(4)
 upi_growth = round(
     (
         (
-            filtered_df["UPI_Transactions"].iloc[-1] /
+            filtered_df["UPI_Transactions"].iloc[-1]
+            /
             filtered_df["UPI_Transactions"].iloc[0]
         ) - 1
     ) * 100,
@@ -108,7 +104,8 @@ upi_growth = round(
 atm_change = round(
     (
         (
-            filtered_df["ATM_Withdrawals"].iloc[-1] /
+            filtered_df["ATM_Withdrawals"].iloc[-1]
+            /
             filtered_df["ATM_Withdrawals"].iloc[0]
         ) - 1
     ) * 100,
@@ -125,29 +122,27 @@ corr_value = round(
 with col1:
     st.metric(
         "UPI Growth",
-        f"{upi_growth:,.1f}%",
-        "Since Selected Period"
+        f"{upi_growth}%",
+        "Selected Period"
     )
 
 with col2:
     st.metric(
         "ATM Withdrawal Change",
-        f"{atm_change:,.1f}%",
-        "Structural Shift"
+        f"{atm_change}%",
+        "Selected Period"
     )
 
 with col3:
     st.metric(
         f"UPI vs {comparison_var}",
-        corr_value,
-        "Relationship Strength"
+        corr_value
     )
 
 with col4:
     st.metric(
         "Observations",
-        len(filtered_df),
-        "Monthly Data"
+        len(filtered_df)
     )
 
 st.markdown("---")
@@ -177,39 +172,122 @@ if use_log:
 st.plotly_chart(trend_fig, use_container_width=True)
 
 # ---------------------------------------------------
-# WHAT CHANGED SECTION
+# RESEARCH INSIGHT EXPLORER
 # ---------------------------------------------------
-st.subheader("What Changed During This Period?")
+st.subheader("Research Insight Explorer")
 
-upi_change = round(
-    (
-        (
-            filtered_df["UPI_Transactions"].iloc[-1] -
-            filtered_df["UPI_Transactions"].iloc[0]
-        )
-        /
-        filtered_df["UPI_Transactions"].iloc[0]
-    ) * 100,
-    1
+st.markdown("""
+Select a research theme or ask a question to explore insights derived from the study.
+""")
+
+insight_option = st.selectbox(
+    "Choose an Insight Area",
+    [
+        "UPI vs ATM Relationship",
+        "COVID Impact on Digital Payments",
+        "Infrastructure Implications",
+        "Digital Payment Ecosystem",
+        "ATM Persistence Despite UPI Growth",
+        "Future Banking Implications"
+    ]
 )
 
-atm_decline = round(
-    (
-        (
-            filtered_df["ATM_Withdrawals"].iloc[-1] -
-            filtered_df["ATM_Withdrawals"].iloc[0]
-        )
-        /
-        filtered_df["ATM_Withdrawals"].iloc[0]
-    ) * 100,
-    1
+if insight_option == "UPI vs ATM Relationship":
+
+    st.info(f"""
+The selected period shows a correlation of {corr_value} between UPI transactions and ATM withdrawals.
+
+The findings suggest that as UPI transactions expanded rapidly, ATM withdrawals gradually weakened. However, ATM activity did not disappear completely, indicating coexistence between digital payments and cash usage.
+""")
+
+elif insight_option == "COVID Impact on Digital Payments":
+
+    st.info("""
+Transaction trends after 2020 suggest that digital payment adoption accelerated significantly during and after the COVID period.
+
+The data indicates stronger behavioural reliance on digital transactions after the pandemic disruption.
+""")
+
+elif insight_option == "Infrastructure Implications":
+
+    st.info("""
+The study suggests that banks may face a dual infrastructure challenge:
+maintaining physical ATM infrastructure while simultaneously investing in digital transaction ecosystems.
+""")
+
+elif insight_option == "Digital Payment Ecosystem":
+
+    st.info("""
+The findings indicate that UPI growth is occurring alongside expansion in other digital transaction systems such as IMPS and POS transactions.
+
+This may suggest ecosystem-wide digital integration rather than isolated platform growth.
+""")
+
+elif insight_option == "ATM Persistence Despite UPI Growth":
+
+    st.info("""
+Despite exponential growth in UPI transactions, ATM withdrawals continue at meaningful levels.
+
+This may indicate that cash dependency still persists across certain economic segments and transaction categories.
+""")
+
+elif insight_option == "Future Banking Implications":
+
+    st.info("""
+The observed payment trends may influence future banking strategy in areas such as ATM infrastructure planning, digital investment allocation, merchant onboarding, and transaction ecosystem expansion.
+""")
+
+# ---------------------------------------------------
+# USER QUERY SECTION
+# ---------------------------------------------------
+st.markdown("---")
+
+st.subheader("Ask the Dashboard")
+
+user_query = st.text_input(
+    "Ask a question about the study"
 )
 
-st.info(f"""
-Between {year_range[0]} and {year_range[1]},
-UPI transactions changed by {upi_change}% while ATM withdrawals changed by {atm_decline}%.
+if user_query:
 
-This suggests that digital payment adoption is increasing rapidly, but cash usage has not disappeared completely, indicating behavioural substitution rather than full cash elimination.
+    query = user_query.lower()
+
+    if "atm" in query and "upi" in query:
+
+        st.success("""
+The study finds a negative relationship between UPI transactions and ATM withdrawals, suggesting measurable digital substitution effects within the banking ecosystem.
+""")
+
+    elif "covid" in query:
+
+        st.success("""
+The data suggests digital transaction growth accelerated significantly after 2020, indicating behavioural changes following the COVID disruption period.
+""")
+
+    elif "future" in query or "banking" in query:
+
+        st.success("""
+The findings may have implications for banking infrastructure strategy, particularly regarding digital ecosystem investment and ATM network optimization.
+""")
+
+    elif "cash" in query:
+
+        st.success("""
+The findings suggest that cash usage continues to persist despite rapid digital growth, indicating coexistence rather than immediate elimination of cash transactions.
+""")
+
+    else:
+
+        st.warning("""
+No direct insight found for this query.
+
+Try asking about:
+- UPI
+- ATM
+- COVID
+- banking strategy
+- cash usage
+- infrastructure
 """)
 
 # ---------------------------------------------------
@@ -220,8 +298,7 @@ st.subheader("UPI Relationship Analysis")
 comparison_fig = px.scatter(
     filtered_df,
     x="UPI_Transactions",
-    y=comparison_var,
-    trendline="ols"
+    y=comparison_var
 )
 
 comparison_fig.update_layout(
@@ -311,27 +388,7 @@ rolling_chart.update_layout(
 st.plotly_chart(rolling_chart, use_container_width=True)
 
 # ---------------------------------------------------
-# INFRASTRUCTURE STRESS INDICATOR
-# ---------------------------------------------------
-st.subheader("Infrastructure Perspective")
-
-if upi_growth > 500 and atm_change > -40:
-
-    st.warning("""
-Digital transactions are growing significantly faster than ATM withdrawals are declining.
-
-This suggests that banks may currently face a dual-infrastructure burden:
-maintaining cash infrastructure while simultaneously investing in digital payment ecosystems.
-""")
-
-else:
-
-    st.success("""
-The data suggests that digital substitution is occurring more uniformly across payment infrastructure.
-""")
-
-# ---------------------------------------------------
-# CORRELATION HEATMAP
+# CORRELATION MATRIX
 # ---------------------------------------------------
 st.subheader("Correlation Matrix")
 
@@ -357,37 +414,7 @@ heatmap.update_layout(
 st.plotly_chart(heatmap, use_container_width=True)
 
 # ---------------------------------------------------
-# KEY TAKEAWAY GENERATOR
-# ---------------------------------------------------
-st.subheader("Key Takeaway Generator")
-
-if corr_value < -0.5:
-
-    st.info(f"""
-The relationship between UPI transactions and {comparison_var}
-shows a strong inverse relationship.
-
-This may indicate measurable substitution effects between digital payment adoption and conventional banking activity.
-""")
-
-elif corr_value > 0.5:
-
-    st.info(f"""
-UPI transactions and {comparison_var}
-appear to move together positively.
-
-This may indicate complementary growth within India’s digital transaction ecosystem rather than direct substitution.
-""")
-
-else:
-
-    st.info(f"""
-The relationship between UPI transactions and {comparison_var}
-appears moderate or mixed, suggesting that multiple ecosystem factors may influence the observed trends.
-""")
-
-# ---------------------------------------------------
-# FUTURE ECOSYSTEM FACTORS
+# EXTERNAL DRIVERS
 # ---------------------------------------------------
 st.subheader("Potential External Drivers")
 
@@ -425,4 +452,3 @@ st.markdown("---")
 st.caption(
     "Source: RBI DBIE Table 45 & NPCI Monthly Statistics"
 )
-
