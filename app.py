@@ -602,11 +602,31 @@ elif section == "Future Banking Scenarios":
         future_df[selected_payment]
         .rolling(2)
         .mean()
-    )
-        future_df[selected_payment]
-        .rolling(2)
-        .mean()
-    )
+   ```python
+future_df = yearly_df.copy()
+
+future_df["Forecast"] = (
+    future_df[selected_payment]
+    .rolling(2)
+    .mean()
+)
+
+forecast_fig = go.Figure()
+
+forecast_fig.add_trace(go.Scatter(
+    x=future_df["Year"],
+    y=future_df[selected_payment],
+    mode="lines+markers",
+    name="Actual"
+))
+
+forecast_fig.add_trace(go.Scatter(
+    x=future_df["Year"],
+    y=future_df["Forecast"],
+    mode="lines",
+    name="Projected Trend"
+))
+
 
     forecast_fig = go.Figure()
 
