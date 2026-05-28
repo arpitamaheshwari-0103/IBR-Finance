@@ -69,8 +69,7 @@ p, div, label {
 
 @st.cache_data
 def load_data():
-    df = pd.read_csv("payments_data.csv")
-    return df
+    return pd.read_csv("payments_data.csv")
 
 df = load_data()
 
@@ -122,8 +121,6 @@ for col in required_cols:
         st.error(f"Required column missing: {col}")
         st.stop()
 
-# Optional fallback columns
-
 if "POS" not in df.columns:
     df["POS"] = 0
 
@@ -158,7 +155,7 @@ section = st.sidebar.radio(
     ]
 )
 
-# Timeline filter
+# Timeline Filter
 
 min_year = int(df["Year"].min())
 max_year = int(df["Year"].max())
@@ -179,7 +176,7 @@ if filtered_df.empty:
     st.warning("No data available for selected filters.")
     st.stop()
 
-# Payment System
+# Payment Selector
 
 selected_payment = st.sidebar.selectbox(
     "Select Payment System",
@@ -428,7 +425,6 @@ else:
     Digital acceleration does not yet imply complete infrastructure replacement.
     """
 
-
 # ======================================================
 # DYNAMIC INSIGHT BOX
 # ======================================================
@@ -466,9 +462,7 @@ if section == "Executive Intelligence":
 
     st.plotly_chart(fig, use_container_width=True)
 
-    st.info(
-        f"Key Takeaway: {insight_heading} indicates hybrid banking transition rather than full infrastructure substitution."
-    )
+    st.info(f"Key Takeaway: {takeaway}")
 
     st.markdown(f"""
     ### Banking Implication
@@ -482,7 +476,7 @@ if section == "Executive Intelligence":
 
 elif section == "Digital Payment Shift":
 
-    st.subheader("Pre vs Post COVID Digital Shift")
+    st.subheader(dynamic_title)
 
     pre = filtered_df[filtered_df["Year"] < 2020]
     post = filtered_df[filtered_df["Year"] >= 2020]
@@ -507,9 +501,13 @@ elif section == "Digital Payment Shift":
 
     st.plotly_chart(fig2, use_container_width=True)
 
-    st.info(
-        "Key Takeaway: COVID accelerated structural behavioural transformation in digital payments."
-    )
+    st.info(f"Key Takeaway: {takeaway}")
+
+    st.markdown(f"""
+    ### Banking Implication
+
+    {banking_implication}
+    """)
 
 # ======================================================
 # CASH INFRASTRUCTURE
@@ -517,22 +515,33 @@ elif section == "Digital Payment Shift":
 
 elif section == "Cash Infrastructure Transition":
 
-    st.subheader("Cash Infrastructure Persistence")
+    st.subheader(dynamic_title)
 
-    fig3 = px.line(
-        filtered_df,
-        x="Month_Year",
-        y=["ATM", "UPI"],
-        template="plotly_dark"
+    fig3 = go.Figure()
+
+    for col in primary_chart:
+
+        fig3.add_trace(go.Scatter(
+            x=filtered_df["Month_Year"],
+            y=filtered_df[col],
+            mode="lines",
+            name=col
+        ))
+
+    fig3.update_layout(
+        template="plotly_dark",
+        height=500
     )
-
-    fig3.update_layout(height=500)
 
     st.plotly_chart(fig3, use_container_width=True)
 
-    st.info(
-        "Key Takeaway: ATM infrastructure withdrawal remains materially slower than digital payment acceleration."
-    )
+    st.info(f"Key Takeaway: {takeaway}")
+
+    st.markdown(f"""
+    ### Banking Implication
+
+    {banking_implication}
+    """)
 
 # ======================================================
 # MERCHANT DIGITISATION
@@ -540,23 +549,33 @@ elif section == "Cash Infrastructure Transition":
 
 elif section == "Merchant Digitisation":
 
-    st.subheader("Merchant Ecosystem Transformation")
+    st.subheader(dynamic_title)
 
-    fig4 = px.area(
-        filtered_df,
-        x="Month_Year",
-        y=["POS", "UPI"],
-        template="plotly_dark"
+    fig4 = go.Figure()
+
+    for col in primary_chart:
+
+        fig4.add_trace(go.Scatter(
+            x=filtered_df["Month_Year"],
+            y=filtered_df[col],
+            mode="lines",
+            name=col
+        ))
+
+    fig4.update_layout(
+        template="plotly_dark",
+        height=500
     )
-
-    fig4.update_layout(height=500)
 
     st.plotly_chart(fig4, use_container_width=True)
 
-    st.info(
-        "Key Takeaway: Merchant QR expansion scaled materially faster than traditional POS deployment."
-    )
+    st.info(f"Key Takeaway: {takeaway}")
 
+    st.markdown(f"""
+    ### Banking Implication
+
+    {banking_implication}
+    """)
 
 # ======================================================
 # FUTURE BANKING SCENARIOS
@@ -594,7 +613,6 @@ elif section == "Future Banking Scenarios":
     {banking_implication}
     """)
 
-
 # ======================================================
 # FOOTER
 # ======================================================
@@ -604,3 +622,5 @@ st.markdown("---")
 st.caption(
     "Data Sources: RBI DBIE, NPCI Transaction Statistics, Banking Infrastructure Analysis"
 )
+
+
