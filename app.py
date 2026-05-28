@@ -557,7 +557,7 @@ elif section == "Merchant Digitisation":
         "Key Takeaway: Merchant QR expansion scaled materially faster than traditional POS deployment."
     )
 
-```python
+
 # ======================================================
 # FUTURE BANKING SCENARIOS
 # ======================================================
