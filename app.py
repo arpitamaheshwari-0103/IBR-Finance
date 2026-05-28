@@ -81,12 +81,9 @@ p, label, div {
 # =========================
 
 @st.cache_data
-
 def load_data():
-df = pd.read_csv("payments_data.csv")
-return df
-
-df = load_data()
+    df = pd.read_csv("payments_data.csv")
+    return df
 
 # =========================
 
