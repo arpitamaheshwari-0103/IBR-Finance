@@ -615,9 +615,7 @@ forecast_fig.add_trace(go.Scatter(
     name="Projected Trend"
 ))
 
-
     forecast_fig = go.Figure()
-
     forecast_fig.add_trace(go.Scatter(
         x=future_df["Year"],
         y=future_df[selected_payment],
