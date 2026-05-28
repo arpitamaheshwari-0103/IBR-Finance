@@ -593,7 +593,7 @@ elif section == "Future Banking Scenarios":
 
     {banking_implication}
     """)
-```
+
 
 # ======================================================
 # FOOTER
