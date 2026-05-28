@@ -1,4 +1,3 @@
-```python
 import streamlit as st
 import pandas as pd
 import plotly.express as px
@@ -42,6 +41,7 @@ p, div, label {
     padding: 16px;
     border-radius: 12px;
     border: 1px solid #2A364D;
+    margin-bottom: 10px;
 }
 
 .signal-card {
@@ -57,6 +57,7 @@ p, div, label {
     padding: 18px;
     border-radius: 12px;
     border-left: 5px solid #3B82F6;
+    margin-top: 10px;
 }
 
 </style>
@@ -70,7 +71,6 @@ p, div, label {
 def load_data():
     df = pd.read_csv("payments_data.csv")
     return df
-
 
 df = load_data()
 
@@ -97,19 +97,17 @@ for col in df.columns:
     elif "IMPS" in col:
         rename_map[col] = "IMPS"
 
-
 df = df.rename(columns=rename_map)
 
 # ======================================================
-# DATE PREP
+# DATE COLUMN
 # ======================================================
 
-if "Month_Year" in df.columns:
-    df["Month_Year"] = pd.to_datetime(df["Month_Year"])
-else:
+if "Month_Year" not in df.columns:
     st.error("Date column not found in dataset.")
     st.stop()
 
+df["Month_Year"] = pd.to_datetime(df["Month_Year"])
 
 df["Year"] = df["Month_Year"].dt.year
 
@@ -124,11 +122,24 @@ for col in required_cols:
         st.error(f"Required column missing: {col}")
         st.stop()
 
+# Create fallback columns if absent
+
 if "POS" not in df.columns:
     df["POS"] = 0
 
 if "IMPS" not in df.columns:
     df["IMPS"] = 0
+
+# ======================================================
+# NUMERIC CONVERSION
+# ======================================================
+
+numeric_cols = ["UPI", "ATM", "POS", "IMPS"]
+
+for col in numeric_cols:
+    df[col] = pd.to_numeric(df[col], errors="coerce")
+
+df = df.dropna(subset=["UPI", "ATM"])
 
 # ======================================================
 # SIDEBAR
@@ -147,6 +158,8 @@ section = st.sidebar.radio(
     ]
 )
 
+# Timeline Filter
+
 min_year = int(df["Year"].min())
 max_year = int(df["Year"].max())
 
@@ -162,10 +175,20 @@ filtered_df = df[
     (df["Year"] <= selected_years[1])
 ]
 
+# Empty Filter Protection
+
+if filtered_df.empty:
+    st.warning("No data available for selected filters.")
+    st.stop()
+
+# Payment Selector
+
 selected_payment = st.sidebar.selectbox(
     "Select Payment System",
     ["UPI", "ATM", "POS", "IMPS"]
 )
+
+# Research Question
 
 research_question = st.sidebar.selectbox(
     "Ask the Research",
@@ -184,34 +207,35 @@ research_question = st.sidebar.selectbox(
 
 st.title("India Payments Transformation Intelligence")
 
-st.markdown(
-    "### FinTech’s Contribution to Transforming Conventional Banking: The Indian Experience"
-)
+st.markdown("""
+### FinTech’s Contribution to Transforming Conventional Banking: The Indian Experience
+""")
 
 st.markdown("""
 <div class='insight-box'>
 <h4>Core Research Framework</h4>
 <p>
 India is becoming digitally transactional faster than cashless.
-Digital payment acceleration and cash persistence currently coexist.
+Digital payment acceleration and cash persistence currently coexist across the banking ecosystem.
 </p>
 </div>
 """, unsafe_allow_html=True)
 
 # ======================================================
-# KPI CARDS
+# KPI SECTION
 # ======================================================
 
 latest_value = round(filtered_df[selected_payment].iloc[-1], 2)
 
-start_value = filtered_df[selected_payment].iloc[0]
+growth = round(
+    filtered_df[selected_payment].pct_change().mean() * 100,
+    2
+)
 
-if start_value != 0:
-    growth = round(((latest_value - start_value) / start_value) * 100, 1)
-else:
-    growth = 0
-
-correlation = round(filtered_df["UPI"].corr(filtered_df["ATM"]), 2)
+correlation = round(
+    filtered_df["UPI"].corr(filtered_df["ATM"]),
+    2
+)
 
 k1, k2, k3, k4 = st.columns(4)
 
@@ -236,7 +260,7 @@ with k2:
 with k3:
     st.markdown(f"""
     <div class='metric-card'>
-    <h4>Transformation Shift</h4>
+    <h4>Digital Expansion Index</h4>
     <h2>{growth}%</h2>
     <p>Infrastructure transition signal</p>
     </div>
@@ -299,23 +323,38 @@ st.markdown("---")
 
 if research_question == "Is UPI replacing cash?":
 
-    insight = "Digital transaction growth is accelerating materially faster than ATM infrastructure withdrawal."
+    insight = """
+    Digital transaction growth is scaling materially faster than ATM infrastructure withdrawal.
+    India is becoming transactionally digital without becoming fully cashless.
+    """
 
 elif research_question == "Why does cash still persist?":
 
-    insight = "Cash persistence reflects uneven banking transition, informal transaction dependency, and infrastructure coexistence."
+    insight = """
+    ATM dependence remains structurally significant despite UPI acceleration,
+    indicating uneven infrastructure transition and persistent informal cash ecosystems.
+    """
 
 elif research_question == "Is ATM infrastructure still relevant?":
 
-    insight = "ATM infrastructure remains strategically relevant due to hybrid banking behaviour across India."
+    insight = """
+    ATM infrastructure remains economically relevant due to hybrid banking behaviour,
+    financial inclusion gaps, and physical currency dependency.
+    """
 
 elif research_question == "Has merchant digitisation accelerated?":
 
-    insight = "QR-led merchant onboarding scaled significantly faster than traditional POS deployment."
+    insight = """
+    QR-led merchant onboarding expanded materially faster than traditional POS deployment,
+    enabling low-cost payment digitisation.
+    """
 
 else:
 
-    insight = "India is becoming digitally transactional faster than cashless across the banking ecosystem."
+    insight = """
+    India's banking transformation is additive before fully substitutive.
+    Digital adoption and cash persistence currently coexist.
+    """
 
 st.markdown(f"""
 <div class='insight-box'>
@@ -343,7 +382,7 @@ if section == "Executive Intelligence":
 
     fig.update_layout(
         template="plotly_dark",
-        height=500
+        height=520
     )
 
     st.plotly_chart(fig, use_container_width=True)
@@ -357,6 +396,7 @@ if section == "Executive Intelligence":
     compare_fig = go.Figure()
 
     for col in ["UPI", "ATM", "POS", "IMPS"]:
+
         compare_fig.add_trace(go.Scatter(
             x=filtered_df["Month_Year"],
             y=filtered_df[col],
@@ -374,7 +414,8 @@ if section == "Executive Intelligence":
     st.markdown("""
     ### Banking Implication
 
-    Banks may increasingly optimize physical infrastructure while reallocating strategic focus toward digital transaction ecosystems.
+    Banks may increasingly optimize physical infrastructure
+    while reallocating strategic focus toward digital transaction ecosystems.
     """)
 
 # ======================================================
@@ -432,7 +473,7 @@ elif section == "Cash Infrastructure Transition":
     st.plotly_chart(fig3, use_container_width=True)
 
     st.info(
-        "Key Takeaway: ATM infrastructure decline remains materially slower than digital transaction acceleration."
+        "Key Takeaway: ATM infrastructure withdrawal remains materially slower than digital payment acceleration."
     )
 
 # ======================================================
@@ -455,7 +496,7 @@ elif section == "Merchant Digitisation":
     st.plotly_chart(fig4, use_container_width=True)
 
     st.info(
-        "Key Takeaway: QR-led merchant onboarding scaled faster than traditional POS deployment."
+        "Key Takeaway: Merchant QR expansion scaled materially faster than traditional POS deployment."
     )
 
 # ======================================================
@@ -497,5 +538,4 @@ st.markdown("---")
 st.caption(
     "Data Sources: RBI DBIE, NPCI Transaction Statistics, Banking Infrastructure Analysis"
 )
-```
 
