@@ -12,7 +12,9 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="expanded"
 )
-
+st.success(
+    "India’s banking transformation remains hybrid: digital transaction acceleration is scaling faster than physical cash infrastructure decline."
+)
 # ======================================================
 # CUSTOM CSS
 # ======================================================
@@ -438,6 +440,14 @@ if section == "Executive Intelligence":
 
     {banking_implication}
     """)
+    st.markdown("""
+### Executive Observations
+
+- UPI growth accelerated structurally after COVID.
+- ATM decline remains slower than digital acceleration.
+- Merchant QR ecosystems reduced onboarding friction.
+- India’s banking transition remains coexistence-driven.
+""")
 
 # ======================================================
 # DIGITAL PAYMENT SHIFT
@@ -503,6 +513,15 @@ elif section == "Cash Infrastructure Transition":
     st.info(
         "Key Takeaway: ATM decline remains materially slower than UPI acceleration."
     )
+    corr = filtered_df[["UPI","ATM","POS","IMPS"]].corr()
+
+fig_corr = px.imshow(
+    corr,
+    text_auto=True,
+    template="plotly_dark"
+)
+
+st.plotly_chart(fig_corr, use_container_width=True)
 
     st.markdown("""
     ### Analytical Lens
@@ -570,6 +589,8 @@ elif section == "Future Banking Scenarios":
     st.info(
         f"Key Takeaway: Future banking infrastructure may increasingly depend on {selected_payment}-driven ecosystems."
     )
+future_df = yearly_df.copy()
+future_df["Forecast"] = future_df[selected_payment].rolling(2).mean()
 
     st.markdown(f"""
     ### Strategic Outlook
@@ -581,7 +602,12 @@ elif section == "Future Banking Scenarios":
 # ======================================================
 # FOOTER
 # ======================================================
+st.markdown("""
+### Why This Research Matters
 
+India’s banking transition represents one of the largest real-time payment infrastructure transformations globally.
+The coexistence of digital acceleration and cash persistence has major implications for banking strategy, financial inclusion, and infrastructure optimization.
+""")
 st.markdown("---")
 
 st.caption(
