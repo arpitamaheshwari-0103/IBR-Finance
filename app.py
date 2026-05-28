@@ -1,3 +1,4 @@
+```python
 import streamlit as st
 import pandas as pd
 import plotly.express as px
@@ -100,7 +101,7 @@ for col in df.columns:
 df = df.rename(columns=rename_map)
 
 # ======================================================
-# DATE COLUMN
+# DATE PREP
 # ======================================================
 
 if "Month_Year" not in df.columns:
@@ -112,7 +113,7 @@ df["Month_Year"] = pd.to_datetime(df["Month_Year"])
 df["Year"] = df["Month_Year"].dt.year
 
 # ======================================================
-# REQUIRED COLUMN CHECK
+# REQUIRED COLUMNS
 # ======================================================
 
 required_cols = ["UPI", "ATM"]
@@ -122,7 +123,7 @@ for col in required_cols:
         st.error(f"Required column missing: {col}")
         st.stop()
 
-# Create fallback columns if absent
+# Optional fallback columns
 
 if "POS" not in df.columns:
     df["POS"] = 0
@@ -158,7 +159,7 @@ section = st.sidebar.radio(
     ]
 )
 
-# Timeline Filter
+# Timeline filter
 
 min_year = int(df["Year"].min())
 max_year = int(df["Year"].max())
@@ -175,13 +176,11 @@ filtered_df = df[
     (df["Year"] <= selected_years[1])
 ]
 
-# Empty Filter Protection
-
 if filtered_df.empty:
     st.warning("No data available for selected filters.")
     st.stop()
 
-# Payment Selector
+# Payment System
 
 selected_payment = st.sidebar.selectbox(
     "Select Payment System",
@@ -317,7 +316,6 @@ with s4:
 
 st.markdown("---")
 
-```python id="0t9azs"
 # ======================================================
 # DYNAMIC QUESTION ENGINE
 # ======================================================
@@ -426,7 +424,7 @@ st.markdown(f"""
 """, unsafe_allow_html=True)
 
 # ======================================================
-# EXECUTIVE PAGE
+# EXECUTIVE INTELLIGENCE
 # ======================================================
 
 if section == "Executive Intelligence":
@@ -460,10 +458,9 @@ if section == "Executive Intelligence":
 
     {banking_implication}
     """)
-```
 
 # ======================================================
-# PAGE 2
+# DIGITAL PAYMENT SHIFT
 # ======================================================
 
 elif section == "Digital Payment Shift":
@@ -498,7 +495,7 @@ elif section == "Digital Payment Shift":
     )
 
 # ======================================================
-# PAGE 3
+# CASH INFRASTRUCTURE
 # ======================================================
 
 elif section == "Cash Infrastructure Transition":
@@ -521,7 +518,7 @@ elif section == "Cash Infrastructure Transition":
     )
 
 # ======================================================
-# PAGE 4
+# MERCHANT DIGITISATION
 # ======================================================
 
 elif section == "Merchant Digitisation":
@@ -544,7 +541,7 @@ elif section == "Merchant Digitisation":
     )
 
 # ======================================================
-# PAGE 5
+# FUTURE BANKING SCENARIOS
 # ======================================================
 
 elif section == "Future Banking Scenarios":
@@ -582,4 +579,4 @@ st.markdown("---")
 st.caption(
     "Data Sources: RBI DBIE, NPCI Transaction Statistics, Banking Infrastructure Analysis"
 )
-
+```
