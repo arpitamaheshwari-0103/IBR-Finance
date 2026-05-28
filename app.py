@@ -315,6 +315,7 @@ with s4:
 
 st.markdown("---")
 
+```python
 # ======================================================
 # DYNAMIC QUESTION ENGINE
 # ======================================================
@@ -327,15 +328,18 @@ if research_question == "Is UPI replacing cash?":
 
     insight_heading = "Structural Finding"
 
-    insight = f"""
-    UPI transaction intensity reached {latest_value:,.0f} during the selected timeline,
-    while ATM infrastructure declined materially slower.
-    This suggests coexistence rather than complete cash replacement.
+    insight = """
+    UPI transaction intensity accelerated materially faster than ATM withdrawal decline,
+    indicating coexistence rather than full cash elimination.
+    """
+
+    takeaway = """
+    Digital transaction growth is scaling faster than cash infrastructure withdrawal.
     """
 
     banking_implication = """
-    Banks may increasingly prioritize transaction ecosystems
-    while maintaining selective physical infrastructure relevance.
+    Banks may increasingly optimize physical infrastructure
+    while prioritizing transaction ecosystems.
     """
 
 elif research_question == "Why does cash still persist?":
@@ -346,15 +350,19 @@ elif research_question == "Why does cash still persist?":
 
     insight_heading = "Infrastructure Observation"
 
-    insight = f"""
-    Despite rapid digital payment acceleration,
-    ATM dependency remains structurally significant across the selected timeline.
-    Cash persistence reflects uneven banking transition and informal transaction ecosystems.
+    insight = """
+    Cash persistence reflects uneven banking transition,
+    informal transaction ecosystems,
+    and continued dependence on physical currency infrastructure.
+    """
+
+    takeaway = """
+    ATM infrastructure remains materially relevant despite digital acceleration.
     """
 
     banking_implication = """
     Physical banking infrastructure may remain strategically relevant
-    despite increasing digital transaction penetration.
+    across hybrid banking ecosystems.
     """
 
 elif research_question == "Is ATM infrastructure still relevant?":
@@ -365,14 +373,17 @@ elif research_question == "Is ATM infrastructure still relevant?":
 
     insight_heading = "Strategic Signal"
 
-    insight = f"""
-    ATM infrastructure continues demonstrating transaction relevance
-    despite acceleration in digital payment systems like {selected_payment}.
-    Hybrid banking behaviour remains economically significant.
+    insight = """
+    ATM infrastructure continues demonstrating behavioural relevance
+    despite rapid payment digitisation.
+    """
+
+    takeaway = """
+    Banking transition remains hybrid rather than fully substitutive.
     """
 
     banking_implication = """
-    Banks may increasingly optimize rather than fully eliminate ATM infrastructure.
+    Banks may increasingly optimize rather than eliminate ATM infrastructure.
     """
 
 elif research_question == "Has merchant digitisation accelerated?":
@@ -383,15 +394,18 @@ elif research_question == "Has merchant digitisation accelerated?":
 
     insight_heading = "Merchant Infrastructure Insight"
 
-    insight = f"""
-    Merchant-side payment digitisation accelerated significantly,
-    particularly through QR-linked ecosystems and low-cost payment rails.
-    {selected_payment} contributed materially to merchant onboarding growth.
+    insight = """
+    QR-led merchant onboarding scaled materially faster
+    than traditional POS deployment.
+    """
+
+    takeaway = """
+    Merchant QR infrastructure accelerated low-cost payment digitisation.
     """
 
     banking_implication = """
-    Merchant transaction ecosystems may increasingly determine
-    customer engagement and transaction data ownership.
+    Merchant ecosystems may increasingly determine
+    transaction data ownership and customer engagement economics.
     """
 
 else:
@@ -402,14 +416,20 @@ else:
 
     insight_heading = "Transformation Insight"
 
-    insight = f"""
-    India's banking transition remains additive before fully substitutive.
-    The selected payment rail ({selected_payment}) coexists with legacy infrastructure systems.
+    insight = """
+    India's banking transformation remains additive before fully substitutive.
+    Digital adoption and cash persistence currently coexist.
+    """
+
+    takeaway = """
+    India's banking transition remains multi-speed and hybrid.
     """
 
     banking_implication = """
-    India's banking transformation remains multi-speed rather than uniformly digital.
+    Digital acceleration does not yet imply complete infrastructure replacement.
     """
+```
+
 
 # ======================================================
 # DYNAMIC INSIGHT BOX
@@ -539,24 +559,27 @@ elif section == "Merchant Digitisation":
         "Key Takeaway: Merchant QR expansion scaled materially faster than traditional POS deployment."
     )
 
+```python
 # ======================================================
 # FUTURE BANKING SCENARIOS
 # ======================================================
 
 elif section == "Future Banking Scenarios":
 
-    st.subheader("Future Banking Infrastructure Outlook")
+    st.subheader(dynamic_title)
 
-    yearly_df = filtered_df.groupby("Year")[selected_payment].mean().reset_index()
+    yearly_df = filtered_df.groupby("Year")[primary_chart].mean().reset_index()
 
     fig5 = go.Figure()
 
-    fig5.add_trace(go.Scatter(
-        x=yearly_df["Year"],
-        y=yearly_df[selected_payment],
-        mode="lines+markers",
-        name=selected_payment
-    ))
+    for col in primary_chart:
+
+        fig5.add_trace(go.Scatter(
+            x=yearly_df["Year"],
+            y=yearly_df[col],
+            mode="lines+markers",
+            name=col
+        ))
 
     fig5.update_layout(
         template="plotly_dark",
@@ -565,9 +588,14 @@ elif section == "Future Banking Scenarios":
 
     st.plotly_chart(fig5, use_container_width=True)
 
-    st.info(
-        "Key Takeaway: India's banking future may become increasingly digital-first while retaining hybrid support systems."
-    )
+    st.info(f"Key Takeaway: {takeaway}")
+
+    st.markdown(f"""
+    ### Banking Implication
+
+    {banking_implication}
+    """)
+```
 
 # ======================================================
 # FOOTER
