@@ -569,7 +569,7 @@ fig3.update_layout(
 
 
 
-    fig3.update_layout(height=500)
+fig3.update_layout(height=500)
   
 # COVID LOCKDOWN MARKER
 
