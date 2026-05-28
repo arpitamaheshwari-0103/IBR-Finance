@@ -594,28 +594,21 @@ elif section == "Future Banking Scenarios":
         height=500
     )
 
+
     st.plotly_chart(fig5, use_container_width=True)
+
+    # Forecast Projection
+
     future_df = yearly_df.copy()
 
-future_df["Forecast"] = future_df[selected_payment].rolling(2).mean()
-
-forecast_fig = go.Figure()
-
-forecast_fig.add_trace(go.Scatter(
-    x=future_df["Year"],
-    y=future_df[selected_payment],
-    mode="lines+markers",
-    name="Actual"
-))
-
-forecast_fig.add_trace(go.Scatter(
-    x=future_df["Year"],
-    y=future_df["Forecast"],
-    mode="lines",
-    name="Projected Trend"
-))
+    future_df["Forecast"] = (
+        future_df[selected_payment]
+        .rolling(2)
+        .mean()
+    )
 
     forecast_fig = go.Figure()
+
     forecast_fig.add_trace(go.Scatter(
         x=future_df["Year"],
         y=future_df[selected_payment],
@@ -637,9 +630,6 @@ forecast_fig.add_trace(go.Scatter(
 
     st.plotly_chart(forecast_fig, use_container_width=True)
 
-    st.info(
-        f"Key Takeaway: Future banking infrastructure may increasingly depend on {selected_payment}-driven ecosystems."
-    )
 
     st.markdown(f"""
     ### Strategic Outlook
