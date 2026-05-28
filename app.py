@@ -317,68 +317,132 @@ with s4:
 
 st.markdown("---")
 
+```python id="0t9azs"
 # ======================================================
-# DYNAMIC INSIGHT ENGINE
+# DYNAMIC QUESTION ENGINE
 # ======================================================
 
 if research_question == "Is UPI replacing cash?":
 
-    insight = """
-    Digital transaction growth is scaling materially faster than ATM infrastructure withdrawal.
-    India is becoming transactionally digital without becoming fully cashless.
+    dynamic_title = "Digital Adoption vs Cash Persistence"
+
+    primary_chart = ["UPI", "ATM"]
+
+    insight_heading = "Structural Finding"
+
+    insight = f"""
+    UPI transaction intensity reached {latest_value:,.0f} during the selected timeline,
+    while ATM infrastructure declined materially slower.
+    This suggests coexistence rather than complete cash replacement.
+    """
+
+    banking_implication = """
+    Banks may increasingly prioritize transaction ecosystems
+    while maintaining selective physical infrastructure relevance.
     """
 
 elif research_question == "Why does cash still persist?":
 
-    insight = """
-    ATM dependence remains structurally significant despite UPI acceleration,
-    indicating uneven infrastructure transition and persistent informal cash ecosystems.
+    dynamic_title = "Cash Persistence Across a Digital Economy"
+
+    primary_chart = ["ATM"]
+
+    insight_heading = "Infrastructure Observation"
+
+    insight = f"""
+    Despite rapid digital payment acceleration,
+    ATM dependency remains structurally significant across the selected timeline.
+    Cash persistence reflects uneven banking transition and informal transaction ecosystems.
+    """
+
+    banking_implication = """
+    Physical banking infrastructure may remain strategically relevant
+    despite increasing digital transaction penetration.
     """
 
 elif research_question == "Is ATM infrastructure still relevant?":
 
-    insight = """
-    ATM infrastructure remains economically relevant due to hybrid banking behaviour,
-    financial inclusion gaps, and physical currency dependency.
+    dynamic_title = "Residual Dependence on Physical Banking Infrastructure"
+
+    primary_chart = ["ATM"]
+
+    insight_heading = "Strategic Signal"
+
+    insight = f"""
+    ATM infrastructure continues demonstrating transaction relevance
+    despite acceleration in digital payment systems like {selected_payment}.
+    Hybrid banking behaviour remains economically significant.
+    """
+
+    banking_implication = """
+    Banks may increasingly optimize rather than fully eliminate ATM infrastructure.
     """
 
 elif research_question == "Has merchant digitisation accelerated?":
 
-    insight = """
-    QR-led merchant onboarding expanded materially faster than traditional POS deployment,
-    enabling low-cost payment digitisation.
+    dynamic_title = "Merchant Ecosystem Transformation"
+
+    primary_chart = ["POS", "UPI"]
+
+    insight_heading = "Merchant Infrastructure Insight"
+
+    insight = f"""
+    Merchant-side payment digitisation accelerated significantly,
+    particularly through QR-linked ecosystems and low-cost payment rails.
+    {selected_payment} contributed materially to merchant onboarding growth.
+    """
+
+    banking_implication = """
+    Merchant transaction ecosystems may increasingly determine
+    customer engagement and transaction data ownership.
     """
 
 else:
 
-    insight = """
-    India's banking transformation is additive before fully substitutive.
-    Digital adoption and cash persistence currently coexist.
+    dynamic_title = "Hidden Transformation Dynamics"
+
+    primary_chart = ["UPI", "ATM", "POS", "IMPS"]
+
+    insight_heading = "Transformation Insight"
+
+    insight = f"""
+    India's banking transition remains additive before fully substitutive.
+    The selected payment rail ({selected_payment}) coexists with legacy infrastructure systems.
     """
+
+    banking_implication = """
+    India's banking transformation remains multi-speed rather than uniformly digital.
+    """
+
+# ======================================================
+# DYNAMIC INSIGHT BOX
+# ======================================================
 
 st.markdown(f"""
 <div class='insight-box'>
-<h4>Structural Finding</h4>
+<h4>{insight_heading}</h4>
 <p>{insight}</p>
 </div>
 """, unsafe_allow_html=True)
 
 # ======================================================
-# PAGE 1
+# EXECUTIVE PAGE
 # ======================================================
 
 if section == "Executive Intelligence":
 
-    st.subheader("Payments Transformation Overview")
+    st.subheader(dynamic_title)
 
     fig = go.Figure()
 
-    fig.add_trace(go.Scatter(
-        x=filtered_df["Month_Year"],
-        y=filtered_df[selected_payment],
-        mode="lines",
-        name=selected_payment
-    ))
+    for col in primary_chart:
+
+        fig.add_trace(go.Scatter(
+            x=filtered_df["Month_Year"],
+            y=filtered_df[col],
+            mode="lines",
+            name=col
+        ))
 
     fig.update_layout(
         template="plotly_dark",
@@ -388,35 +452,15 @@ if section == "Executive Intelligence":
     st.plotly_chart(fig, use_container_width=True)
 
     st.info(
-        "Key Takeaway: Banking transformation in India remains hybrid rather than fully digital."
+        f"Key Takeaway: {insight_heading} indicates hybrid banking transition rather than full infrastructure substitution."
     )
 
-    st.subheader("Comparative Transformation Dynamics")
-
-    compare_fig = go.Figure()
-
-    for col in ["UPI", "ATM", "POS", "IMPS"]:
-
-        compare_fig.add_trace(go.Scatter(
-            x=filtered_df["Month_Year"],
-            y=filtered_df[col],
-            mode="lines",
-            name=col
-        ))
-
-    compare_fig.update_layout(
-        template="plotly_dark",
-        height=450
-    )
-
-    st.plotly_chart(compare_fig, use_container_width=True)
-
-    st.markdown("""
+    st.markdown(f"""
     ### Banking Implication
 
-    Banks may increasingly optimize physical infrastructure
-    while reallocating strategic focus toward digital transaction ecosystems.
+    {banking_implication}
     """)
+```
 
 # ======================================================
 # PAGE 2
