@@ -597,6 +597,7 @@ elif section == "Future Banking Scenarios":
         height=500
     )
 
+
     st.plotly_chart(fig5, use_container_width=True)
 
     # Forecast Projection
@@ -631,6 +632,9 @@ elif section == "Future Banking Scenarios":
     )
 
     st.plotly_chart(forecast_fig, use_container_width=True)
+
+
+
 
     st.info(
         f"Key Takeaway: Future banking infrastructure may increasingly depend on {selected_payment}-driven ecosystems."
