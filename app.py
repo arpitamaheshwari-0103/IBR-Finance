@@ -578,4 +578,3 @@ st.markdown("---")
 st.caption(
     "Data Sources: RBI DBIE, NPCI Transaction Statistics, Banking Infrastructure Analysis"
 )
-```
