@@ -257,7 +257,7 @@ with k2:
 with k3:
     st.markdown(f"""
     <div class='metric-card'>
-    <h4>Digital Expansion Index</h4>
+    <h4>Average Growth Rate</h4>
     <h2>{growth}%</h2>
     <p>Infrastructure transition signal</p>
     </div>
@@ -611,7 +611,7 @@ elif section == "Cash Infrastructure Transition":
         template="plotly_dark"
     )
 
-    fig_corr.update_layout(height=600)
+    fig_corr.update_layout(height=700)
 
     st.plotly_chart(fig_corr, use_container_width=True)
 
