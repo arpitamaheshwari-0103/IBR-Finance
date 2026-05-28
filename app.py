@@ -498,7 +498,6 @@ elif section == "Digital Payment Shift":
     after the pandemic across India's digital banking ecosystem.
     """)
 
-```python
 # ======================================================
 # CASH INFRASTRUCTURE TRANSITION
 # ======================================================
