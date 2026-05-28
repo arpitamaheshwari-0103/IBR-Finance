@@ -521,9 +521,15 @@ elif section == "Cash Infrastructure Transition":
         "Key Takeaway: ATM decline remains materially slower than UPI acceleration."
     )
 
-    corr = filtered_df[["UPI", "ATM", "POS", "IMPS"]].corr()
+    corr = filtered_df[["UPI","ATM","POS","IMPS"]].corr()
 
     fig_corr = px.imshow(
+        corr,
+        text_auto=True,
+        template="plotly_dark"
+    )
+
+    st.plotly_chart(fig_corr, use_container_width=True)
         corr,
         text_auto=True,
         template="plotly_dark"
@@ -593,10 +599,13 @@ elif section == "Future Banking Scenarios":
     )
 
     st.plotly_chart(fig5, use_container_width=True)
-
     future_df = yearly_df.copy()
 
     future_df["Forecast"] = (
+        future_df[selected_payment]
+        .rolling(2)
+        .mean()
+    )
         future_df[selected_payment]
         .rolling(2)
         .mean()
