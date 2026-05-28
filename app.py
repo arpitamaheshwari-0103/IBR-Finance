@@ -498,6 +498,7 @@ elif section == "Digital Payment Shift":
     after the pandemic across India's digital banking ecosystem.
     """)
 
+```python
 # ======================================================
 # CASH INFRASTRUCTURE TRANSITION
 # ======================================================
@@ -521,15 +522,11 @@ elif section == "Cash Infrastructure Transition":
         "Key Takeaway: ATM decline remains materially slower than UPI acceleration."
     )
 
-    corr = filtered_df[["UPI","ATM","POS","IMPS"]].corr()
+    # Correlation Heatmap
+
+    corr = filtered_df[["UPI", "ATM", "POS", "IMPS"]].corr()
 
     fig_corr = px.imshow(
-        corr,
-        text_auto=True,
-        template="plotly_dark"
-    )
-
-    st.plotly_chart(fig_corr, use_container_width=True)
         corr,
         text_auto=True,
         template="plotly_dark"
