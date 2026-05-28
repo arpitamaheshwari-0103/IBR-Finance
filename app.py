@@ -4,18 +4,18 @@ import plotly.express as px
 from sklearn.linear_model import LinearRegression
 import numpy as np
 
-# ===================================================
+# =====================================================
 # PAGE CONFIG
-# ===================================================
+# =====================================================
 
 st.set_page_config(
     page_title="India Banking Transformation Dashboard",
     layout="wide"
 )
 
-# ===================================================
+# =====================================================
 # LOAD DATA
-# ===================================================
+# =====================================================
 
 @st.cache_data
 def load_data():
@@ -26,18 +26,19 @@ def load_data():
         payments_df["Month_Year"]
     )
 
-    # Additional RBI Infrastructure Files
+    # Optional RBI infrastructure files
     old_format = pd.read_csv("Old_Format.csv")
     sheet1 = pd.read_csv("Sheet1.csv")
     new_format = pd.read_csv("New_Format.csv")
 
     return payments_df, old_format, sheet1, new_format
 
+
 payments_df, old_format, sheet1, new_format = load_data()
 
-# ===================================================
+# =====================================================
 # SIDEBAR
-# ===================================================
+# =====================================================
 
 st.sidebar.title("Banking Transformation Navigator")
 
@@ -48,13 +49,17 @@ page = st.sidebar.radio(
         "Transaction Landscape",
         "Payment Behaviour Dynamics",
         "Digital Ecosystem Shift",
-        "Transition Momentum Analysis",
-        "Infrastructure Evolution",
+        "Transition Momentum",
+        "Structural Transformation Indicators",
         "Strategic Banking Outlook"
     ]
 )
 
 st.sidebar.markdown("---")
+
+# -----------------------------------------------------
+# FILTERS
+# -----------------------------------------------------
 
 year_range = st.sidebar.slider(
     "Select Time Period",
@@ -67,7 +72,7 @@ year_range = st.sidebar.slider(
 )
 
 selected_variables = st.sidebar.multiselect(
-    "Select Variables",
+    "Select Payment Systems",
     [
         "UPI_Transactions",
         "ATM_Withdrawals",
@@ -81,7 +86,7 @@ selected_variables = st.sidebar.multiselect(
 )
 
 comparison_variables = st.sidebar.multiselect(
-    "Compare UPI With",
+    "Analyse UPI Relationship With",
     [
         "ATM_Withdrawals",
         "DebitCard_POS",
@@ -94,7 +99,7 @@ comparison_variables = st.sidebar.multiselect(
 )
 
 forecast_variable = st.sidebar.selectbox(
-    "Forecast Variable",
+    "Forecast Payment System",
     [
         "UPI_Transactions",
         "ATM_Withdrawals",
@@ -103,23 +108,18 @@ forecast_variable = st.sidebar.selectbox(
     ]
 )
 
-use_log = st.sidebar.toggle(
-    "Use Log Scale",
-    value=False
-)
-
-# ===================================================
+# =====================================================
 # FILTER DATA
-# ===================================================
+# =====================================================
 
 filtered_df = payments_df[
     (payments_df["Month_Year"].dt.year >= year_range[0]) &
     (payments_df["Month_Year"].dt.year <= year_range[1])
 ]
 
-# ===================================================
+# =====================================================
 # HEADER
-# ===================================================
+# =====================================================
 
 st.title("India Banking Transformation Dashboard")
 
@@ -127,15 +127,15 @@ st.markdown("""
 ### FinTech’s Contribution to Transforming Conventional Banking: The Indian Experience
 """)
 
-st.caption(
-    "Interactive analytical exploration of India’s evolving banking and payment ecosystem"
-)
+st.caption("""
+Interactive analytical exploration of India’s evolving banking and payment ecosystem
+""")
 
 st.markdown("---")
 
-# ===================================================
+# =====================================================
 # KPI SECTION
-# ===================================================
+# =====================================================
 
 col1, col2, col3, col4 = st.columns(4)
 
@@ -173,7 +173,7 @@ with col1:
     st.metric(
         "Digital Transaction Expansion",
         f"{upi_growth}%",
-        "Acceleration observed"
+        "Digital adoption accelerating"
     )
 
 with col2:
@@ -181,7 +181,7 @@ with col2:
     st.metric(
         "Cash Infrastructure Persistence",
         f"{atm_change}%",
-        "Conventional systems remain active"
+        "Cash ecosystem still active"
     )
 
 with col3:
@@ -189,7 +189,7 @@ with col3:
     st.metric(
         "Payment Behaviour Correlation",
         corr_value,
-        "Digital–cash interaction"
+        "Digital–cash coexistence"
     )
 
 with col4:
@@ -202,9 +202,9 @@ with col4:
 
 st.markdown("---")
 
-# ===================================================
-# TRANSFORMATION OVERVIEW
-# ===================================================
+# =====================================================
+# 1. TRANSFORMATION OVERVIEW
+# =====================================================
 
 if page == "Transformation Overview":
 
@@ -225,9 +225,6 @@ if page == "Transformation Overview":
         hovermode="x unified"
     )
 
-    if use_log:
-        overview_fig.update_yaxes(type="log")
-
     st.plotly_chart(
         overview_fig,
         use_container_width=True
@@ -236,14 +233,14 @@ if page == "Transformation Overview":
     st.markdown("### Key Strategic Takeaway")
 
     st.caption("""
-Digital transaction systems expanded rapidly across the observed period, while conventional banking channels continued operating at meaningful levels.
+India’s transaction ecosystem is becoming digitally intensive faster than it is becoming cash-independent.
 
-This suggests structural coexistence between digital transactions and cash infrastructure within India’s banking ecosystem.
+The findings suggest coexistence between digital expansion and residual dependence on conventional banking infrastructure.
 """)
 
-# ===================================================
-# TRANSACTION LANDSCAPE
-# ===================================================
+# =====================================================
+# 2. TRANSACTION LANDSCAPE
+# =====================================================
 
 elif page == "Transaction Landscape":
 
@@ -261,17 +258,14 @@ elif page == "Transaction Landscape":
         hovermode="x unified"
     )
 
-    if use_log:
-        trend_fig.update_yaxes(type="log")
-
     st.plotly_chart(
         trend_fig,
         use_container_width=True
     )
 
-    # ------------------------------------------------
+    # -------------------------------------------------
     # PERFORMANCE SNAPSHOT
-    # ------------------------------------------------
+    # -------------------------------------------------
 
     st.subheader("Payment System Performance Snapshot")
 
@@ -298,10 +292,17 @@ elif page == "Transaction Landscape":
             trend = "Weakening"
 
         snapshot.append({
-            "Variable": variable,
-            "Latest Value": round(latest, 2),
+
+            "Payment System": variable,
+
+            "Latest Value (Million)": round(
+                latest,
+                2
+            ),
+
             "YoY Change (%)": yoy,
-            "Trend": trend
+
+            "Trend Direction": trend
         })
 
     snapshot_df = pd.DataFrame(snapshot)
@@ -311,24 +312,30 @@ elif page == "Transaction Landscape":
         use_container_width=True
     )
 
-    # ------------------------------------------------
+    # -------------------------------------------------
     # DYNAMIC INSIGHT
-    # ------------------------------------------------
+    # -------------------------------------------------
 
     top_growth = snapshot_df.sort_values(
         by="YoY Change (%)",
         ascending=False
     ).iloc[0]
 
+    weakest = snapshot_df.sort_values(
+        by="YoY Change (%)"
+    ).iloc[0]
+
     st.markdown("### Key Strategic Takeaway")
 
     st.caption(f"""
-{top_growth['Variable']} currently demonstrates the strongest transaction momentum within the selected period, suggesting stronger ecosystem acceleration relative to other payment systems.
+{top_growth['Payment System']} currently demonstrates the strongest ecosystem momentum, while {weakest['Payment System']} reflects relatively weaker transaction acceleration.
+
+This suggests that India’s banking transition is occurring unevenly across transaction channels rather than through uniform substitution.
 """)
 
-# ===================================================
-# PAYMENT BEHAVIOUR DYNAMICS
-# ===================================================
+# =====================================================
+# 3. PAYMENT BEHAVIOUR DYNAMICS
+# =====================================================
 
 elif page == "Payment Behaviour Dynamics":
 
@@ -364,32 +371,33 @@ elif page == "Payment Behaviour Dynamics":
         if corr_dynamic < -0.5:
 
             insight = (
-                "The observed inverse relationship may indicate "
-                "measurable substitution effects between digital "
-                "transactions and conventional banking behaviour."
+                "The observed inverse relationship suggests "
+                "that digital adoption may be substituting "
+                "certain conventional banking behaviours."
             )
 
         elif corr_dynamic > 0.5:
 
             insight = (
-                "The positive relationship may indicate ecosystem-wide "
-                "transaction expansion rather than direct substitution."
+                "The positive relationship suggests broader "
+                "transaction ecosystem expansion rather than "
+                "pure replacement effects."
             )
 
         else:
 
             insight = (
-                "The relationship appears moderate, suggesting multiple "
-                "ecosystem and behavioural factors may influence transaction patterns."
+                "The moderate relationship suggests coexistence "
+                "between digital and conventional transaction systems."
             )
 
         st.markdown("### Key Strategic Takeaway")
 
         st.caption(insight)
 
-# ===================================================
-# DIGITAL ECOSYSTEM SHIFT
-# ===================================================
+# =====================================================
+# 4. DIGITAL ECOSYSTEM SHIFT
+# =====================================================
 
 elif page == "Digital Ecosystem Shift":
 
@@ -448,13 +456,14 @@ elif page == "Digital Ecosystem Shift":
         use_container_width=True
     )
 
-    # ------------------------------------------------
+    # -------------------------------------------------
     # MARKET SHARE TABLE
-    # ------------------------------------------------
+    # -------------------------------------------------
 
     latest = share_df.iloc[-1]
 
     market_share = pd.DataFrame({
+
         "Payment System": [
             "UPI",
             "ATM",
@@ -462,7 +471,7 @@ elif page == "Digital Ecosystem Shift":
             "IMPS"
         ],
 
-        "Market Share (%)": [
+        "Current Market Share (%)": [
             round(latest["UPI Share"], 2),
             round(latest["ATM Share"], 2),
             round(latest["POS Share"], 2),
@@ -470,7 +479,7 @@ elif page == "Digital Ecosystem Shift":
         ]
     })
 
-    st.subheader("Latest Payment System Composition")
+    st.subheader("Current Payment Ecosystem Composition")
 
     st.dataframe(
         market_share,
@@ -480,18 +489,16 @@ elif page == "Digital Ecosystem Shift":
     st.markdown("### Key Strategic Takeaway")
 
     st.caption("""
-The transaction ecosystem composition shifted significantly during the observed period, with digital platforms gradually occupying larger transaction shares.
-
-This suggests broader ecosystem-wide digital integration rather than isolated platform growth.
+The ecosystem composition suggests that India’s transaction transformation is increasingly platform-centric, with UPI gradually dominating transaction share while conventional channels remain operationally relevant.
 """)
 
-# ===================================================
-# TRANSITION MOMENTUM ANALYSIS
-# ===================================================
+# =====================================================
+# 5. TRANSITION MOMENTUM
+# =====================================================
 
-elif page == "Transition Momentum Analysis":
+elif page == "Transition Momentum":
 
-    st.subheader("Transition Momentum Analysis")
+    st.subheader("Transition Momentum")
 
     rolling_df = filtered_df.copy()
 
@@ -518,11 +525,11 @@ elif page == "Transition Momentum Analysis":
         use_container_width=True
     )
 
-    # ------------------------------------------------
-    # PRE VS POST COVID
-    # ------------------------------------------------
+    # -------------------------------------------------
+    # COVID SNAPSHOT
+    # -------------------------------------------------
 
-    st.subheader("Pre vs Post COVID Snapshot")
+    st.subheader("Pre vs Post COVID Comparison")
 
     pre_covid = filtered_df[
         filtered_df["Month_Year"] < "2020-03-01"
@@ -535,8 +542,8 @@ elif page == "Transition Momentum Analysis":
     comparison_table = pd.DataFrame({
 
         "Metric": [
-            "Average UPI Transactions",
-            "Average ATM Withdrawals"
+            "Average UPI Transactions (Million)",
+            "Average ATM Withdrawals (Million)"
         ],
 
         "Pre-COVID": [
@@ -558,76 +565,82 @@ elif page == "Transition Momentum Analysis":
     st.markdown("### Key Strategic Takeaway")
 
     st.caption("""
-The transition momentum analysis suggests that digital transaction acceleration strengthened significantly after the COVID period, indicating behavioural and ecosystem-level shifts in transaction preferences.
+The post-COVID transaction environment reflects a structural behavioural shift rather than a temporary digital adoption spike.
+
+Digital transaction intensity remained permanently elevated even after mobility restrictions ended.
 """)
 
-# ===================================================
-# INFRASTRUCTURE EVOLUTION
-# ===================================================
+# =====================================================
+# 6. STRUCTURAL TRANSFORMATION INDICATORS
+# =====================================================
 
-elif page == "Infrastructure Evolution":
+elif page == "Structural Transformation Indicators":
 
-    st.subheader("Infrastructure Evolution")
+    st.subheader("Structural Transformation Indicators")
 
-    infrastructure_data = pd.DataFrame({
+    transformation_table = pd.DataFrame({
 
-        "Infrastructure Indicator": [
-            "ATM Network",
-            "POS Ecosystem",
-            "Digital Acceptance Infrastructure",
-            "Merchant Payment Systems"
+        "Observed Pattern": [
+
+            "UPI acceleration",
+
+            "ATM persistence",
+
+            "POS ecosystem growth",
+
+            "Cash activity stability",
+
+            "Platform dominance"
+
         ],
 
-        "Observed Direction": [
-            "Gradual structural adjustment",
-            "Expansion observed",
-            "Rapid ecosystem expansion",
-            "Growing digital integration"
-        ],
+        "Structural Meaning": [
 
-        "Strategic Relevance": [
-            "Physical banking persistence",
-            "Merchant digitisation",
-            "Digital ecosystem penetration",
-            "Transaction ecosystem evolution"
+            "Consumer behavioural digitisation",
+
+            "Incomplete infrastructure transition",
+
+            "Merchant-side digitisation",
+
+            "Residual cash dependency",
+
+            "Network-effect driven ecosystem expansion"
         ]
     })
 
     st.dataframe(
-        infrastructure_data,
+        transformation_table,
         use_container_width=True
     )
 
-    # ------------------------------------------------
-    # INFRASTRUCTURE VISUAL
-    # ------------------------------------------------
-
-    infra_chart = px.bar(
-        infrastructure_data,
-        x="Infrastructure Indicator",
-        y=[1, 1, 1, 1]
+    transformation_chart = px.bar(
+        transformation_table,
+        x="Observed Pattern",
+        y=[1, 1, 1, 1, 1]
     )
 
-    infra_chart.update_layout(
+    transformation_chart.update_layout(
         height=450,
         showlegend=False,
         yaxis_visible=False
     )
 
     st.plotly_chart(
-        infra_chart,
+        transformation_chart,
         use_container_width=True
     )
 
     st.markdown("### Key Strategic Takeaway")
 
     st.caption("""
-The broader infrastructure indicators suggest that India’s banking transformation involves not only transaction digitisation, but also restructuring of payment acceptance systems and banking support infrastructure.
+The findings suggest that India’s banking transformation is not merely digital payment growth.
+
+Instead, the data reflects behavioural, infrastructural, and ecosystem-level transition occurring at different speeds across the financial system.
 """)
 
-# ===================================================
-# STRATEGIC BANKING OUTLOOK
-# ===================================================
+# =====================================================
+# 7. STRATEGIC BANKING OUTLOOK
+# =====================================================
 
 elif page == "Strategic Banking Outlook":
 
@@ -662,22 +675,48 @@ elif page == "Strategic Banking Outlook":
         freq="MS"
     )[1:]
 
-    forecast_plot_df = pd.DataFrame({
+    # -------------------------------------------------
+    # HISTORICAL DATA
+    # -------------------------------------------------
 
-        "Month_Year": future_dates,
-        "Forecast": predictions
+    historical = pd.DataFrame({
+
+        "Month_Year": forecast_df["Month_Year"],
+
+        "Value": forecast_df[forecast_variable],
+
+        "Type": "Historical"
     })
 
+    # -------------------------------------------------
+    # FORECAST DATA
+    # -------------------------------------------------
+
+    forecast_future = pd.DataFrame({
+
+        "Month_Year": future_dates,
+
+        "Value": predictions,
+
+        "Type": "Projected"
+    })
+
+    combined_forecast = pd.concat([
+        historical,
+        forecast_future
+    ])
+
     forecast_fig = px.line(
-        forecast_plot_df,
+        combined_forecast,
         x="Month_Year",
-        y="Forecast",
+        y="Value",
+        color="Type",
         markers=True
     )
 
     forecast_fig.update_layout(
         height=550,
-        yaxis_title=f"Projected {forecast_variable}"
+        yaxis_title=f"{forecast_variable}"
     )
 
     st.plotly_chart(
@@ -688,19 +727,17 @@ elif page == "Strategic Banking Outlook":
     st.markdown("### Key Strategic Takeaway")
 
     st.caption(f"""
-The projection for {forecast_variable} suggests that historical transaction momentum may continue influencing future banking and payment ecosystem trends.
+The projection for {forecast_variable} suggests that transaction digitisation may continue expanding faster than conventional banking infrastructure withdrawal.
 
-The forecast is intended for directional analytical understanding rather than precise predictive estimation.
+This indicates that India’s banking ecosystem may experience prolonged coexistence between digital and legacy transaction systems.
 """)
 
-# ===================================================
+# =====================================================
 # FOOTER
-# ===================================================
+# =====================================================
 
 st.markdown("---")
 
-st.caption(
-    "Source: RBI DBIE Table 45 & NPCI Monthly Statistics"
-)
-
-  
+st.caption("""
+Source: RBI DBIE Table 45 & NPCI Monthly Statistics
+""")
