@@ -3,9 +3,9 @@ import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 
-# ==================================================
+# ======================================================
 # PAGE CONFIG
-# ==================================================
+# ======================================================
 
 st.set_page_config(
     page_title="India Banking Transformation Dashboard",
@@ -13,9 +13,9 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# ==================================================
+# ======================================================
 # CUSTOM CSS
-# ==================================================
+# ======================================================
 
 st.markdown("""
 <style>
@@ -64,20 +64,19 @@ p, label, div {
 </style>
 """, unsafe_allow_html=True)
 
-# ==================================================
+# ======================================================
 # LOAD DATA
-# ==================================================
+# ======================================================
 
 @st.cache_data
 def load_data():
-    df = pd.read_csv("payments_data.csv")
-    return df
+    return pd.read_csv("payments_data.csv")
 
 df = load_data()
 
-# ==================================================
+# ======================================================
 # DATA PREP
-# ==================================================
+# ======================================================
 
 date_col = None
 
@@ -108,9 +107,9 @@ for col in df.columns:
 
 df = df.rename(columns=rename_map)
 
-# ==================================================
+# ======================================================
 # SIDEBAR
-# ==================================================
+# ======================================================
 
 st.sidebar.title("Research Navigation")
 
@@ -142,7 +141,7 @@ filtered_df = df[
     (df["Year"] <= selected_years[1])
 ]
 
-# Payment System Selector
+# Payment system selector
 
 payment_options = ["UPI", "ATM", "POS", "IMPS"]
 
@@ -164,9 +163,9 @@ research_question = st.sidebar.selectbox(
     ]
 )
 
-# ==================================================
+# ======================================================
 # HEADER
-# ==================================================
+# ======================================================
 
 st.title("India Banking Transformation Dashboard")
 
@@ -178,17 +177,18 @@ st.markdown(
     "#### Strategic Banking Transformation & Digital Infrastructure Intelligence"
 )
 
-# ==================================================
+# ======================================================
 # KPI SECTION
-# ==================================================
+# ======================================================
 
-latest_upi = round(filtered_df["UPI"].iloc[-1], 2)
-latest_atm = round(filtered_df["ATM"].iloc[-1], 2)
+latest_value = round(filtered_df[selected_payment].iloc[-1], 2)
 
-upi_growth = round(
+growth = round(
     (
-        (filtered_df["UPI"].iloc[-1] - filtered_df["UPI"].iloc[0])
-        / filtered_df["UPI"].iloc[0]
+        (filtered_df[selected_payment].iloc[-1] -
+         filtered_df[selected_payment].iloc[0])
+        /
+        filtered_df[selected_payment].iloc[0]
     ) * 100,
     1
 )
@@ -203,77 +203,90 @@ col1, col2, col3, col4 = st.columns(4)
 with col1:
     st.markdown(f"""
     <div class='metric-card'>
-        <h4>Digital Transaction Scale</h4>
-        <h2>{latest_upi:,.0f} M</h2>
-        <p>UPI ecosystem intensity</p>
+        <h4>Selected Payment System</h4>
+        <h2>{selected_payment}</h2>
+        <p>Active analytical focus</p>
     </div>
     """, unsafe_allow_html=True)
 
 with col2:
     st.markdown(f"""
     <div class='metric-card'>
-        <h4>Cash Infrastructure</h4>
-        <h2>{latest_atm:,.0f} M</h2>
-        <p>Residual ATM dependence</p>
+        <h4>Current Scale</h4>
+        <h2>{latest_value:,.0f}</h2>
+        <p>Latest transaction intensity</p>
     </div>
     """, unsafe_allow_html=True)
 
 with col3:
     st.markdown(f"""
     <div class='metric-card'>
-        <h4>Digital Adoption Growth</h4>
-        <h2>{upi_growth}%</h2>
-        <p>Behavioural digitisation acceleration</p>
+        <h4>Growth Rate</h4>
+        <h2>{growth}%</h2>
+        <p>Transformation acceleration</p>
     </div>
     """, unsafe_allow_html=True)
 
 with col4:
     st.markdown(f"""
     <div class='metric-card'>
-        <h4>Infrastructure Coexistence</h4>
+        <h4>UPI vs ATM Correlation</h4>
         <h2>{correlation}</h2>
-        <p>UPI vs ATM relationship</p>
+        <p>Infrastructure coexistence indicator</p>
     </div>
     """, unsafe_allow_html=True)
 
 st.markdown("---")
 
-# ==================================================
+# ======================================================
 # DYNAMIC INSIGHT ENGINE
-# ==================================================
+# ======================================================
 
 if research_question == "Is UPI replacing cash?":
 
-    insight = """
+    dynamic_title = "Is UPI Actually Replacing Cash Usage?"
+
+    dynamic_insight = """
     UPI adoption accelerated rapidly after COVID-19,
     but ATM withdrawals declined gradually rather than collapsing.
-    This suggests coexistence rather than full cash elimination.
+    This suggests coexistence rather than immediate cash elimination.
     """
 
 elif research_question == "Why does cash still persist?":
 
-    insight = """
-    Cash persistence reflects behavioural trust, rural accessibility,
-    and continued dependence on physical currency in informal ecosystems.
+    dynamic_title = "Why Does Cash Persistence Continue?"
+
+    dynamic_insight = """
+    Cash persistence reflects behavioural trust,
+    rural accessibility limitations,
+    and continued dependence on physical currency ecosystems.
     """
 
 elif research_question == "Is ATM infrastructure still relevant?":
 
-    insight = """
-    ATM infrastructure remains relevant because banking transition
-    across India is uneven and financial inclusion gaps still exist.
+    dynamic_title = "Is ATM Infrastructure Still Relevant?"
+
+    dynamic_insight = """
+    ATM infrastructure remains relevant because
+    banking transition across India remains uneven
+    across regions and user groups.
     """
 
 elif research_question == "Has merchant digitisation accelerated?":
 
-    insight = """
-    Merchant QR infrastructure scaled faster than traditional POS systems,
-    enabling low-cost payment digitisation across small businesses.
+    dynamic_title = "Has Merchant Digitisation Accelerated?"
+
+    dynamic_insight = """
+    Merchant QR infrastructure scaled significantly faster
+    than traditional POS expansion,
+    enabling low-cost payment digitisation.
     """
 
 else:
 
-    insight = """
+    dynamic_title = "What Is the Hidden Insight From the Study?"
+
+    dynamic_insight = """
     India is becoming digitally transactional faster than cashless.
     Digital adoption and cash persistence currently coexist.
     """
@@ -281,59 +294,51 @@ else:
 st.markdown(f"""
 <div class='insight-box'>
 <h4>Strategic Banking Observation</h4>
-<p class='small-text'>{insight}</p>
+<p class='small-text'>{dynamic_insight}</p>
 </div>
 """, unsafe_allow_html=True)
 
-# ==================================================
-# PAGE 1
-# ==================================================
+# ======================================================
+# EXECUTIVE INTELLIGENCE
+# ======================================================
 
 if section == "Executive Intelligence":
 
-    st.subheader("Is UPI Actually Replacing Cash Usage?")
+    st.subheader(dynamic_title)
 
-    fig1 = go.Figure()
+    fig = go.Figure()
 
-    fig1.add_trace(
+    fig.add_trace(
         go.Scatter(
             x=filtered_df[date_col],
-            y=filtered_df["UPI"],
-            mode="lines",
-            name="UPI Transactions"
+            y=filtered_df[selected_payment],
+            mode="lines+markers",
+            name=selected_payment
         )
     )
 
-    fig1.add_trace(
-        go.Scatter(
-            x=filtered_df[date_col],
-            y=filtered_df["ATM"],
-            mode="lines",
-            name="ATM Withdrawals"
-        )
-    )
-
-    fig1.update_layout(
+    fig.update_layout(
         template="plotly_dark",
-        height=450
+        height=450,
+        paper_bgcolor="#111827",
+        plot_bgcolor="#111827"
     )
 
-    st.plotly_chart(fig1, use_container_width=True)
+    st.plotly_chart(fig, use_container_width=True)
 
-    st.markdown("""
+    st.markdown(f"""
     <div class='insight-box'>
     <h4>Analyst Interpretation</h4>
     <p class='small-text'>
-    UPI growth accelerated significantly after COVID-19,
-    but cash infrastructure remained persistent.
-    Banking transition remains additive before fully substitutive.
+    The selected payment system demonstrates structural transformation
+    across India's banking ecosystem during the selected timeline period.
     </p>
     </div>
     """, unsafe_allow_html=True)
 
-# ==================================================
-# PAGE 2
-# ==================================================
+# ======================================================
+# DIGITAL PAYMENT SHIFT
+# ======================================================
 
 elif section == "Digital Payment Shift":
 
@@ -344,41 +349,41 @@ elif section == "Digital Payment Shift":
 
     comparison_df = pd.DataFrame({
         "Period": ["Pre-COVID", "Post-COVID"],
-        "UPI Average": [
-            pre_covid["UPI"].mean(),
-            post_covid["UPI"].mean()
-        ],
-        "ATM Average": [
-            pre_covid["ATM"].mean(),
-            post_covid["ATM"].mean()
+        "Average": [
+            pre_covid[selected_payment].mean(),
+            post_covid[selected_payment].mean()
         ]
     })
 
     fig2 = px.bar(
         comparison_df,
         x="Period",
-        y=["UPI Average", "ATM Average"],
-        barmode="group",
+        y="Average",
+        color="Period",
         template="plotly_dark"
     )
 
-    fig2.update_layout(height=450)
+    fig2.update_layout(
+        height=450,
+        paper_bgcolor="#111827",
+        plot_bgcolor="#111827"
+    )
 
     st.plotly_chart(fig2, use_container_width=True)
 
-    st.markdown("""
+    st.markdown(f"""
     <div class='insight-box'>
     <h4>Strategic Implication</h4>
     <p class='small-text'>
-    Digital transaction intensity remained elevated after COVID-19,
-    indicating structural behavioural transformation.
+    The selected payment system experienced accelerated behavioural change
+    after COVID-19, indicating structural digital transformation.
     </p>
     </div>
     """, unsafe_allow_html=True)
 
-# ==================================================
-# PAGE 3
-# ==================================================
+# ======================================================
+# CASH INFRASTRUCTURE TRANSITION
+# ======================================================
 
 elif section == "Cash Infrastructure Transition":
 
@@ -387,11 +392,15 @@ elif section == "Cash Infrastructure Transition":
     fig3 = px.line(
         filtered_df,
         x=date_col,
-        y="ATM",
+        y=["ATM", "UPI"],
         template="plotly_dark"
     )
 
-    fig3.update_layout(height=450)
+    fig3.update_layout(
+        height=450,
+        paper_bgcolor="#111827",
+        plot_bgcolor="#111827"
+    )
 
     st.plotly_chart(fig3, use_container_width=True)
 
@@ -399,28 +408,32 @@ elif section == "Cash Infrastructure Transition":
     <div class='insight-box'>
     <h4>Infrastructure Signal</h4>
     <p class='small-text'>
-    ATM infrastructure declined slower than digital payment acceleration,
-    indicating persistent dependence on physical cash systems.
+    Digital payment acceleration and cash infrastructure persistence
+    currently coexist across India’s banking ecosystem.
     </p>
     </div>
     """, unsafe_allow_html=True)
 
-# ==================================================
-# PAGE 4
-# ==================================================
+# ======================================================
+# MERCHANT & INCLUSION ANALYSIS
+# ======================================================
 
 elif section == "Merchant & Inclusion Analysis":
 
-    st.subheader("Has Merchant Digitisation Accelerated?")
+    st.subheader("Merchant Digitisation Analysis")
 
-    fig4 = px.line(
+    fig4 = px.area(
         filtered_df,
         x=date_col,
-        y="POS",
+        y=["POS", "UPI"],
         template="plotly_dark"
     )
 
-    fig4.update_layout(height=450)
+    fig4.update_layout(
+        height=450,
+        paper_bgcolor="#111827",
+        plot_bgcolor="#111827"
+    )
 
     st.plotly_chart(fig4, use_container_width=True)
 
@@ -428,66 +441,58 @@ elif section == "Merchant & Inclusion Analysis":
     <div class='insight-box'>
     <h4>Banking Relevance</h4>
     <p class='small-text'>
-    Merchant-side digitisation scaled rapidly through QR infrastructure,
-    enabling low-cost financial ecosystem expansion.
+    Merchant-side QR infrastructure enabled low-cost ecosystem expansion
+    and accelerated digital payment accessibility.
     </p>
     </div>
     """, unsafe_allow_html=True)
 
-# ==================================================
-# PAGE 5
-# ==================================================
+# ======================================================
+# FUTURE BANKING SCENARIOS
+# ======================================================
 
 elif section == "Future Banking Scenarios":
 
     st.subheader("Future Banking Outlook")
 
-    forecast_df = filtered_df.groupby("Year")[["UPI", "ATM"]].mean().reset_index()
+    yearly_df = filtered_df.groupby("Year")[selected_payment].mean().reset_index()
 
     fig5 = go.Figure()
 
     fig5.add_trace(
         go.Scatter(
-            x=forecast_df["Year"],
-            y=forecast_df["UPI"],
+            x=yearly_df["Year"],
+            y=yearly_df[selected_payment],
             mode="lines+markers",
-            name="UPI"
-        )
-    )
-
-    fig5.add_trace(
-        go.Scatter(
-            x=forecast_df["Year"],
-            y=forecast_df["ATM"],
-            mode="lines+markers",
-            name="ATM"
+            name=selected_payment
         )
     )
 
     fig5.update_layout(
         template="plotly_dark",
-        height=450
+        height=450,
+        paper_bgcolor="#111827",
+        plot_bgcolor="#111827"
     )
 
     st.plotly_chart(fig5, use_container_width=True)
 
-    st.markdown("""
+    st.markdown(f"""
     <div class='insight-box'>
     <h4>Future Banking Scenario</h4>
     <p class='small-text'>
-    Conventional banking infrastructure may increasingly transition
-    toward digital-first ecosystems while maintaining hybrid cash support.
+    Future banking infrastructure may increasingly shift toward
+    digitally transactional ecosystems while retaining hybrid support systems.
     </p>
     </div>
     """, unsafe_allow_html=True)
 
-# ==================================================
+# ======================================================
 # FOOTER
-# ==================================================
+# ======================================================
 
 st.markdown("---")
 
 st.caption(
-    "Data Sources: RBI DBIE, NPCI Statistics, Banking Infrastructure Analysis"
+    "Data Sources: RBI DBIE, NPCI Transaction Statistics, Banking Infrastructure Analysis"
 )
-
