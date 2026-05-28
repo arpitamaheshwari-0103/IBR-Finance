@@ -271,6 +271,29 @@ with k4:
     <p>Hybrid banking coexistence metric</p>
     </div>
     """, unsafe_allow_html=True)
+   
+st.markdown("""
+<div style="
+background-color:#111827;
+padding:20px;
+border-radius:14px;
+border-left:6px solid #D4AF37;
+margin-top:15px;
+">
+
+<h2 style="color:white;">
+UPI–ATM Elasticity: −0.284
+</h2>
+
+<p style="font-size:18px;color:#D1D5DB;">
+Every 1% increase in UPI transactions is associated with approximately
+a 0.28% decline in ATM withdrawals.
+</p>
+
+</div>
+""", unsafe_allow_html=True)
+
+
 
 # ======================================================
 # TRANSFORMATION SIGNALS
