@@ -427,7 +427,6 @@ else:
     banking_implication = """
     Digital acceleration does not yet imply complete infrastructure replacement.
     """
-```
 
 
 # ======================================================
