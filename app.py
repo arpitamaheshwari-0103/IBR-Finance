@@ -598,16 +598,42 @@ future_df["Forecast"] = future_df[selected_payment].rolling(2).mean()
     This section evaluates how {selected_payment}
     may influence future digital banking infrastructure and ecosystem economics.
     """)
+```python
+# ======================================================
+# EXECUTIVE OBSERVATIONS
+# ======================================================
+
+st.markdown("""
+### Executive Observations
+
+- UPI growth accelerated structurally after COVID.
+- ATM decline remains slower than digital acceleration.
+- Merchant QR ecosystems reduced onboarding friction.
+- India's banking transition remains coexistence-driven.
+""")
+
+# ======================================================
+# WHY THIS RESEARCH MATTERS
+# ======================================================
+
+st.markdown("""
+### Why This Research Matters
+
+India's banking transition represents one of the world's largest real-time payment ecosystem transformations.
+
+The coexistence of digital acceleration and cash persistence has major implications for:
+- banking strategy,
+- infrastructure optimization,
+- merchant ecosystems,
+- and financial inclusion policy.
+""")
+```
+
 
 # ======================================================
 # FOOTER
 # ======================================================
-st.markdown("""
-### Why This Research Matters
 
-India’s banking transition represents one of the largest real-time payment infrastructure transformations globally.
-The coexistence of digital acceleration and cash persistence has major implications for banking strategy, financial inclusion, and infrastructure optimization.
-""")
 st.markdown("---")
 
 st.caption(
