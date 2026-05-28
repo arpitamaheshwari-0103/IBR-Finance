@@ -2,18 +2,18 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 
-# ---------------------------------------------------
+# ===================================================
 # PAGE CONFIG
-# ---------------------------------------------------
+# ===================================================
 
 st.set_page_config(
     page_title="India Banking Transformation Dashboard",
     layout="wide"
 )
 
-# ---------------------------------------------------
+# ===================================================
 # LOAD DATA
-# ---------------------------------------------------
+# ===================================================
 
 @st.cache_data
 def load_data():
@@ -26,22 +26,22 @@ def load_data():
 
 df = load_data()
 
-# ---------------------------------------------------
-# SIDEBAR NAVIGATION
-# ---------------------------------------------------
+# ===================================================
+# SIDEBAR
+# ===================================================
 
-st.sidebar.title("Explore the Study")
+st.sidebar.title("Banking Transformation Navigator")
 
 page = st.sidebar.radio(
-    "Select Analysis Section",
+    "Select Analytical Section",
     [
-        "Executive Overview",
-        "Trend Analysis",
-        "Relationship Analysis",
-        "Ecosystem Analysis",
-        "Rolling Correlation",
-        "Hidden Insights",
-        "Strategic Implications"
+        "Transformation Overview",
+        "Transaction Landscape",
+        "Payment Behaviour Dynamics",
+        "Digital Ecosystem Shift",
+        "Transition Momentum Analysis",
+        "Structural Banking Insights",
+        "Strategic Banking Outlook"
     ]
 )
 
@@ -57,12 +57,30 @@ year_range = st.sidebar.slider(
     )
 )
 
-comparison_var = st.sidebar.selectbox(
-    "Relationship Variable",
+selected_variables = st.sidebar.multiselect(
+    "Select Variables",
+    [
+        "UPI_Transactions",
+        "ATM_Withdrawals",
+        "DebitCard_POS",
+        "IMPS"
+    ],
+    default=[
+        "UPI_Transactions",
+        "ATM_Withdrawals"
+    ]
+)
+
+comparison_variables = st.sidebar.multiselect(
+    "Compare UPI With",
     [
         "ATM_Withdrawals",
         "DebitCard_POS",
         "IMPS"
+    ],
+    default=[
+        "ATM_Withdrawals",
+        "DebitCard_POS"
     ]
 )
 
@@ -71,29 +89,18 @@ use_log = st.sidebar.toggle(
     value=False
 )
 
-# ---------------------------------------------------
+# ===================================================
 # FILTER DATA
-# ---------------------------------------------------
+# ===================================================
 
 filtered_df = df[
     (df["Month_Year"].dt.year >= year_range[0]) &
     (df["Month_Year"].dt.year <= year_range[1])
 ]
 
-# ---------------------------------------------------
-# COMMON METRICS
-# ---------------------------------------------------
-
-corr_value = round(
-    filtered_df["UPI_Transactions"].corr(
-        filtered_df[comparison_var]
-    ),
-    3
-)
-
-# ---------------------------------------------------
+# ===================================================
 # HEADER
-# ---------------------------------------------------
+# ===================================================
 
 st.title("India Banking Transformation Dashboard")
 
@@ -102,82 +109,130 @@ st.markdown("""
 """)
 
 st.caption(
-    "Analytical exploration of India’s banking transformation using RBI DBIE and NPCI transaction data"
+    "Interactive analytical exploration of India’s evolving payment ecosystem"
 )
 
 st.markdown("---")
 
 # ===================================================
-# EXECUTIVE OVERVIEW
+# KPI SECTION
 # ===================================================
 
-if page == "Executive Overview":
+col1, col2, col3, col4 = st.columns(4)
 
-    st.subheader("Executive Overview")
+upi_growth = round(
+    (
+        (
+            filtered_df["UPI_Transactions"].iloc[-1]
+            /
+            filtered_df["UPI_Transactions"].iloc[0]
+        ) - 1
+    ) * 100,
+    1
+)
 
-    col1, col2 = st.columns(2)
+atm_change = round(
+    (
+        (
+            filtered_df["ATM_Withdrawals"].iloc[-1]
+            /
+            filtered_df["ATM_Withdrawals"].iloc[0]
+        ) - 1
+    ) * 100,
+    1
+)
 
-    with col1:
+corr_value = round(
+    filtered_df["UPI_Transactions"].corr(
+        filtered_df["ATM_Withdrawals"]
+    ),
+    3
+)
 
-        st.info("""
-### Digital Transaction Expansion
+with col1:
 
-The study observes strong acceleration in digital transaction systems, particularly after 2020, driven by wider ecosystem adoption and behavioural shifts.
-""")
+    st.metric(
+        "Digital Transaction Expansion",
+        f"{upi_growth}%",
+        "Strong acceleration observed"
+    )
 
-    with col2:
+with col2:
 
-        st.info("""
-### Conventional Banking Activity
+    st.metric(
+        "Cash Infrastructure Persistence",
+        f"{atm_change}%",
+        "Conventional channels remain active"
+    )
 
-Despite rapid digital expansion, conventional banking channels such as ATM withdrawals continue at meaningful levels across the observed period.
-""")
+with col3:
 
-    col3, col4 = st.columns(2)
+    st.metric(
+        "Payment Behaviour Correlation",
+        corr_value,
+        "Digital–cash interaction observed"
+    )
 
-    with col3:
+with col4:
 
-        st.info("""
-### Payment Ecosystem Transition
+    st.metric(
+        "Research Coverage",
+        len(filtered_df),
+        "Monthly transaction dataset"
+    )
 
-The findings suggest coexistence between digital and cash systems rather than immediate elimination of conventional transaction behaviour.
-""")
-
-    with col4:
-
-        st.info("""
-### Study Coverage
-
-Monthly transaction-level analysis covering UPI, ATM withdrawals, Debit Card POS transactions, and IMPS data from 2018–2026.
-""")
-
-    st.markdown("---")
-
-    st.subheader("Core Research Perspective")
-
-    st.success("""
-The study does not simply examine digital payment growth.
-
-Instead, it explores how India’s banking ecosystem is transitioning structurally, behaviourally, and operationally as digital transaction systems expand alongside conventional banking infrastructure.
-""")
+st.markdown("---")
 
 # ===================================================
-# TREND ANALYSIS
+# TRANSFORMATION OVERVIEW
 # ===================================================
 
-elif page == "Trend Analysis":
+if page == "Transformation Overview":
 
-    st.subheader("Payment System Transformation Trends")
+    st.subheader("Transformation Overview")
 
-    trend_fig = px.line(
+    overview_fig = px.line(
         filtered_df,
         x="Month_Year",
         y=[
             "UPI_Transactions",
-            "ATM_Withdrawals",
-            "DebitCard_POS",
-            "IMPS"
+            "ATM_Withdrawals"
         ],
+        markers=True
+    )
+
+    overview_fig.update_layout(
+        xaxis_title="Year",
+        yaxis_title="Transaction Volume (Million)",
+        hovermode="x unified",
+        height=550
+    )
+
+    if use_log:
+        overview_fig.update_yaxes(type="log")
+
+    st.plotly_chart(overview_fig, use_container_width=True)
+
+    st.markdown("### Strategic Observation")
+
+    st.info("""
+The findings indicate that digital payment systems expanded significantly across the observed period, while conventional banking channels continued operating at meaningful levels.
+
+This suggests structural coexistence rather than immediate replacement within India’s transaction ecosystem.
+""")
+
+# ===================================================
+# TRANSACTION LANDSCAPE
+# ===================================================
+
+elif page == "Transaction Landscape":
+
+    st.subheader("Transaction Landscape")
+
+    trend_fig = px.line(
+        filtered_df,
+        x="Month_Year",
+        y=selected_variables,
         markers=True
     )
 
@@ -193,79 +248,60 @@ elif page == "Trend Analysis":
 
     st.plotly_chart(trend_fig, use_container_width=True)
 
-    st.markdown("### Key Observation")
-
-    st.info("""
-Digital transaction systems expanded significantly during the observed period, particularly after 2020. However, conventional banking activities continued despite rapid digital acceleration.
-""")
-
-    st.markdown("### Strategic Interpretation")
+    st.markdown("### Analytical Interpretation")
 
     st.success("""
-The findings suggest gradual behavioural substitution rather than complete replacement of conventional banking systems.
-""")
+The transaction landscape demonstrates rapid digital transaction acceleration, particularly after 2020, while conventional banking activity declined more gradually.
 
-    st.markdown("### Possible Implication")
-
-    st.warning("""
-Banks may continue managing both physical and digital transaction ecosystems simultaneously during the transition period.
+This may indicate behavioural payment substitution occurring faster than infrastructure transition.
 """)
 
 # ===================================================
-# RELATIONSHIP ANALYSIS
+# PAYMENT BEHAVIOUR DYNAMICS
 # ===================================================
 
-elif page == "Relationship Analysis":
+elif page == "Payment Behaviour Dynamics":
 
-    st.subheader("UPI Relationship Analysis")
+    st.subheader("Payment Behaviour Dynamics")
 
-    comparison_fig = px.scatter(
-        filtered_df,
-        x="UPI_Transactions",
-        y=comparison_var
-    )
+    for variable in comparison_variables:
 
-    comparison_fig.update_layout(
-        xaxis_title="UPI Transactions",
-        yaxis_title=comparison_var,
-        height=550
-    )
+        st.markdown(f"#### UPI vs {variable}")
 
-    st.plotly_chart(comparison_fig, use_container_width=True)
+        comparison_fig = px.scatter(
+            filtered_df,
+            x="UPI_Transactions",
+            y=variable
+        )
 
-    st.markdown("### Relationship Insight")
+        comparison_fig.update_layout(
+            xaxis_title="UPI Transactions",
+            yaxis_title=variable,
+            height=450
+        )
 
-    if corr_value < -0.5:
+        st.plotly_chart(comparison_fig, use_container_width=True)
+
+        corr_dynamic = round(
+            filtered_df["UPI_Transactions"].corr(
+                filtered_df[variable]
+            ),
+            3
+        )
 
         st.info(f"""
-The relationship between UPI transactions and {comparison_var} appears strongly negative during the selected period.
+Correlation between UPI transactions and {variable}: {corr_dynamic}
 
-This may suggest measurable substitution effects between digital transaction adoption and conventional banking activity.
-""")
-
-    elif corr_value > 0.5:
-
-        st.info(f"""
-UPI transactions and {comparison_var} appear to move together positively.
-
-This may indicate complementary ecosystem growth rather than direct substitution.
-""")
-
-    else:
-
-        st.info(f"""
-The relationship between UPI transactions and {comparison_var} appears moderate or mixed.
-
-This suggests that multiple ecosystem and behavioural factors may influence the observed trends simultaneously.
+The observed relationship may reflect changing transaction behaviour patterns within India’s evolving banking ecosystem.
 """)
 
 # ===================================================
-# ECOSYSTEM ANALYSIS
+# DIGITAL ECOSYSTEM SHIFT
 # ===================================================
 
-elif page == "Ecosystem Analysis":
+elif page == "Digital Ecosystem Shift":
 
-    st.subheader("Payment Ecosystem Share Analysis")
+    st.subheader("Digital Ecosystem Shift")
 
     share_df = filtered_df.copy()
 
@@ -277,22 +313,26 @@ elif page == "Ecosystem Analysis":
     )
 
     share_df["UPI Share"] = (
-        share_df["UPI_Transactions"] /
+        share_df["UPI_Transactions"]
+        /
         share_df["Total"]
     ) * 100
 
     share_df["ATM Share"] = (
-        share_df["ATM_Withdrawals"] /
+        share_df["ATM_Withdrawals"]
+        /
         share_df["Total"]
     ) * 100
 
     share_df["POS Share"] = (
-        share_df["DebitCard_POS"] /
+        share_df["DebitCard_POS"]
+        /
         share_df["Total"]
     ) * 100
 
     share_df["IMPS Share"] = (
-        share_df["IMPS"] /
+        share_df["IMPS"]
+        /
         share_df["Total"]
     ) * 100
 
@@ -314,21 +354,21 @@ elif page == "Ecosystem Analysis":
 
     st.plotly_chart(share_chart, use_container_width=True)
 
-    st.markdown("### Ecosystem Insight")
+    st.markdown("### Ecosystem Interpretation")
 
     st.info("""
-The composition of India’s payment ecosystem changed significantly during the observed period, with UPI gradually occupying a larger transaction share.
+The composition of India’s transaction ecosystem shifted significantly during the observed period, with digital platforms gradually occupying larger transaction shares.
 
-This suggests ecosystem-wide digital integration rather than isolated payment platform growth.
+This suggests ecosystem-wide transformation rather than isolated payment platform growth.
 """)
 
 # ===================================================
-# ROLLING CORRELATION
+# TRANSITION MOMENTUM ANALYSIS
 # ===================================================
 
-elif page == "Rolling Correlation":
+elif page == "Transition Momentum Analysis":
 
-    st.subheader("Rolling Correlation Analysis")
+    st.subheader("Transition Momentum Analysis")
 
     rolling_df = filtered_df.copy()
 
@@ -351,26 +391,26 @@ elif page == "Rolling Correlation":
 
     st.plotly_chart(rolling_chart, use_container_width=True)
 
-    st.markdown("### Dynamic Relationship Interpretation")
+    st.markdown("### Dynamic Transition Interpretation")
 
     st.info("""
-The rolling correlation analysis helps observe how the relationship between UPI transactions and ATM withdrawals evolved over time rather than remaining static.
+The rolling correlation analysis allows observation of how the relationship between digital and conventional transaction systems evolved across different periods.
 
-This enables exploration of whether substitution effects strengthened, weakened, or stabilised during different phases of India’s banking transformation.
+This helps identify whether behavioural substitution effects strengthened, weakened, or stabilised over time.
 """)
 
 # ===================================================
-# HIDDEN INSIGHTS
+# STRUCTURAL BANKING INSIGHTS
 # ===================================================
 
-elif page == "Hidden Insights":
+elif page == "Structural Banking Insights":
 
-    st.subheader("Insights Beyond the Obvious")
+    st.subheader("Structural Banking Insights")
 
     st.success("""
 ### Cash Persistence Despite Digital Expansion
 
-Even with rapid digital transaction growth, cash infrastructure continues to remain structurally relevant within the Indian economy.
+Even with strong digital transaction growth, cash infrastructure continues to remain structurally relevant within the Indian economy.
 """)
 
     st.success("""
@@ -382,13 +422,7 @@ Banks may need to simultaneously finance ATM infrastructure and digital payment 
     st.success("""
 ### Behavioural Transition Lag
 
-Digital transaction adoption may occur faster than behavioural trust transition across all segments of the economy.
-""")
-
-    st.success("""
-### Ecosystem Transformation
-
-The findings suggest broader transaction ecosystem restructuring rather than growth of a single payment platform alone.
+Digital transaction adoption may occur faster than behavioural trust transition across all economic segments.
 """)
 
     st.success("""
@@ -397,24 +431,30 @@ The findings suggest broader transaction ecosystem restructuring rather than gro
 Persistent ATM activity may reflect uneven digital penetration across demographic or geographic segments.
 """)
 
+    st.success("""
+### Ecosystem Restructuring
+
+The findings suggest broader transaction ecosystem transformation rather than growth of a single payment platform alone.
+""")
+
 # ===================================================
-# STRATEGIC IMPLICATIONS
+# STRATEGIC BANKING OUTLOOK
 # ===================================================
 
-elif page == "Strategic Implications":
+elif page == "Strategic Banking Outlook":
 
-    st.subheader("Strategic Banking Implications")
+    st.subheader("Strategic Banking Outlook")
 
     st.warning("""
-### Banking Infrastructure Planning
+### Banking Infrastructure Allocation
 
-Banks may need to optimise allocation between physical cash infrastructure and digital ecosystem investment.
+Banks may increasingly need to optimise allocation between physical transaction infrastructure and digital ecosystem investment.
 """)
 
     st.warning("""
-### Digital Ecosystem Expansion
+### Merchant Ecosystem Expansion
 
-Future banking competitiveness may increasingly depend on digital transaction ecosystem participation and merchant integration.
+Future transaction competitiveness may depend significantly on merchant onboarding and ecosystem integration strategies.
 """)
 
     st.warning("""
@@ -424,20 +464,20 @@ Conventional banking systems may continue remaining relevant within segments exp
 """)
 
     st.warning("""
-### Policy & Regulatory Relevance
+### Long-Term Banking Transformation
 
-The observed transition may influence future financial infrastructure planning and digital banking policy direction.
+The findings suggest gradual banking ecosystem evolution rather than immediate disruption of conventional banking systems.
 """)
 
     st.warning("""
-### Long-Term Transformation Perspective
+### Strategic Industry Relevance
 
-The findings suggest that India’s banking transformation reflects gradual ecosystem evolution rather than immediate disruption of conventional banking systems.
+The transition observed in the study may influence future banking strategy, fintech partnerships, transaction infrastructure planning, and policy direction.
 """)
 
-# ---------------------------------------------------
+# ===================================================
 # FOOTER
-# ---------------------------------------------------
+# ===================================================
 
 st.markdown("---")
 
