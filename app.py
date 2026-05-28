@@ -1,3 +1,4 @@
+```python
 import streamlit as st
 import pandas as pd
 import plotly.express as px
@@ -155,8 +156,6 @@ section = st.sidebar.radio(
     ]
 )
 
-# Timeline Filter
-
 min_year = int(df["Year"].min())
 max_year = int(df["Year"].max())
 
@@ -176,14 +175,10 @@ if filtered_df.empty:
     st.warning("No data available for selected filters.")
     st.stop()
 
-# Payment Selector
-
 selected_payment = st.sidebar.selectbox(
     "Select Payment System",
     ["UPI", "ATM", "POS", "IMPS"]
 )
-
-# Research Question
 
 research_question = st.sidebar.selectbox(
     "Ask the Research",
@@ -278,37 +273,22 @@ st.markdown("### Transformation Signals")
 
 s1, s2, s3, s4 = st.columns(4)
 
-with s1:
-    st.markdown("""
-    <div class='signal-card'>
-    <h4>ATM Persistence</h4>
-    <p>Incomplete cash transition</p>
-    </div>
-    """, unsafe_allow_html=True)
+signals = [
+    ("ATM Persistence", "Incomplete cash transition"),
+    ("QR Expansion", "Merchant digitisation"),
+    ("UPI Scale", "Behavioural digitisation"),
+    ("Hybrid Banking", "Coexistence economy")
+]
 
-with s2:
-    st.markdown("""
-    <div class='signal-card'>
-    <h4>QR Expansion</h4>
-    <p>Merchant digitisation</p>
-    </div>
-    """, unsafe_allow_html=True)
+for col, signal in zip([s1, s2, s3, s4], signals):
 
-with s3:
-    st.markdown("""
-    <div class='signal-card'>
-    <h4>UPI Scale</h4>
-    <p>Behavioural digitisation</p>
-    </div>
-    """, unsafe_allow_html=True)
-
-with s4:
-    st.markdown("""
-    <div class='signal-card'>
-    <h4>Hybrid Banking</h4>
-    <p>Coexistence economy</p>
-    </div>
-    """, unsafe_allow_html=True)
+    with col:
+        st.markdown(f"""
+        <div class='signal-card'>
+        <h4>{signal[0]}</h4>
+        <p>{signal[1]}</p>
+        </div>
+        """, unsafe_allow_html=True)
 
 st.markdown("---")
 
@@ -319,8 +299,6 @@ st.markdown("---")
 if research_question == "Is UPI replacing cash?":
 
     dynamic_title = "Digital Adoption vs Cash Persistence"
-
-    primary_chart = ["UPI", "ATM"]
 
     insight_heading = "Structural Finding"
 
@@ -342,62 +320,26 @@ elif research_question == "Why does cash still persist?":
 
     dynamic_title = "Cash Persistence Across a Digital Economy"
 
-  if research_question == "Is UPI replacing cash?":
+    insight_heading = "Infrastructure Observation"
 
-```
-if selected_payment == "ATM":
-    primary_chart = ["UPI", "ATM"]
-else:
-    primary_chart = [selected_payment, "ATM"]
-```
+    insight = """
+    Cash persistence reflects uneven banking transition,
+    informal transaction ecosystems,
+    and continued dependence on physical currency infrastructure.
+    """
 
-elif research_question == "Why does cash still persist?":
+    takeaway = """
+    ATM infrastructure remains materially relevant despite digital acceleration.
+    """
 
-```
-primary_chart = ["ATM"]
-
-if selected_payment != "ATM":
-    st.warning(
-        "This research question is primarily associated with ATM infrastructure behaviour."
-    )
-```
-
-elif research_question == "Is ATM infrastructure still relevant?":
-
-```
-primary_chart = ["ATM"]
-
-if selected_payment != "ATM":
-    st.warning(
-        "ATM infrastructure analysis is more strongly aligned with ATM transaction data."
-    )
-```
-
-elif research_question == "Has merchant digitisation accelerated?":
-
-```
-if selected_payment in ["POS", "UPI"]:
-    primary_chart = [selected_payment, "UPI"]
-else:
-    primary_chart = ["POS", "UPI"]
-
-    st.warning(
-        "Merchant digitisation insights are more strongly linked with POS and UPI ecosystems."
-    )
-```
-
-else:
-
-```
-primary_chart = ["UPI", "ATM", "POS", "IMPS"]
-```
-
+    banking_implication = """
+    Physical banking infrastructure may remain strategically relevant
+    across hybrid banking ecosystems.
+    """
 
 elif research_question == "Is ATM infrastructure still relevant?":
 
     dynamic_title = "Residual Dependence on Physical Banking Infrastructure"
-
-    primary_chart = ["ATM"]
 
     insight_heading = "Strategic Signal"
 
@@ -418,8 +360,6 @@ elif research_question == "Has merchant digitisation accelerated?":
 
     dynamic_title = "Merchant Ecosystem Transformation"
 
-    primary_chart = ["POS", "UPI"]
-
     insight_heading = "Merchant Infrastructure Insight"
 
     insight = """
@@ -439,8 +379,6 @@ elif research_question == "Has merchant digitisation accelerated?":
 else:
 
     dynamic_title = "Hidden Transformation Dynamics"
-
-    primary_chart = ["UPI", "ATM", "POS", "IMPS"]
 
     insight_heading = "Transformation Insight"
 
@@ -476,23 +414,23 @@ if section == "Executive Intelligence":
 
     st.subheader(dynamic_title)
 
-    fig = go.Figure()
+    executive_fig = go.Figure()
 
-    for col in primary_chart:
+    for col in ["UPI", "ATM", "POS", "IMPS"]:
 
-        fig.add_trace(go.Scatter(
+        executive_fig.add_trace(go.Scatter(
             x=filtered_df["Month_Year"],
             y=filtered_df[col],
             mode="lines",
             name=col
         ))
 
-    fig.update_layout(
+    executive_fig.update_layout(
         template="plotly_dark",
         height=520
     )
 
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(executive_fig, use_container_width=True)
 
     st.info(f"Key Takeaway: {takeaway}")
 
@@ -508,7 +446,7 @@ if section == "Executive Intelligence":
 
 elif section == "Digital Payment Shift":
 
-    st.subheader(dynamic_title)
+    st.subheader("Pre vs Post COVID Payment Acceleration")
 
     pre = filtered_df[filtered_df["Year"] < 2020]
     post = filtered_df[filtered_df["Year"] >= 2020]
@@ -533,46 +471,45 @@ elif section == "Digital Payment Shift":
 
     st.plotly_chart(fig2, use_container_width=True)
 
-    st.info(f"Key Takeaway: {takeaway}")
+    st.info(
+        "Key Takeaway: COVID accelerated behavioural adoption of digital payment systems."
+    )
 
-    st.markdown(f"""
-    ### Banking Implication
+    st.markdown("""
+    ### Analytical Lens
 
-    {banking_implication}
+    This section evaluates how payment adoption structurally accelerated
+    after the pandemic across India's digital banking ecosystem.
     """)
 
 # ======================================================
-# CASH INFRASTRUCTURE
+# CASH INFRASTRUCTURE TRANSITION
 # ======================================================
 
 elif section == "Cash Infrastructure Transition":
 
-    st.subheader(dynamic_title)
+    st.subheader("ATM vs Digital Payment Coexistence")
 
-    fig3 = go.Figure()
-
-    for col in primary_chart:
-
-        fig3.add_trace(go.Scatter(
-            x=filtered_df["Month_Year"],
-            y=filtered_df[col],
-            mode="lines",
-            name=col
-        ))
-
-    fig3.update_layout(
-        template="plotly_dark",
-        height=500
+    fig3 = px.line(
+        filtered_df,
+        x="Month_Year",
+        y=["ATM", "UPI"],
+        template="plotly_dark"
     )
+
+    fig3.update_layout(height=500)
 
     st.plotly_chart(fig3, use_container_width=True)
 
-    st.info(f"Key Takeaway: {takeaway}")
+    st.info(
+        "Key Takeaway: ATM decline remains materially slower than UPI acceleration."
+    )
 
-    st.markdown(f"""
-    ### Banking Implication
+    st.markdown("""
+    ### Analytical Lens
 
-    {banking_implication}
+    This section evaluates whether digital payment growth
+    is substituting or coexisting with cash infrastructure.
     """)
 
 # ======================================================
@@ -581,32 +518,28 @@ elif section == "Cash Infrastructure Transition":
 
 elif section == "Merchant Digitisation":
 
-    st.subheader(dynamic_title)
+    st.subheader("Merchant Ecosystem Transformation")
 
-    fig4 = go.Figure()
-
-    for col in primary_chart:
-
-        fig4.add_trace(go.Scatter(
-            x=filtered_df["Month_Year"],
-            y=filtered_df[col],
-            mode="lines",
-            name=col
-        ))
-
-    fig4.update_layout(
-        template="plotly_dark",
-        height=500
+    fig4 = px.area(
+        filtered_df,
+        x="Month_Year",
+        y=["POS", "UPI"],
+        template="plotly_dark"
     )
+
+    fig4.update_layout(height=500)
 
     st.plotly_chart(fig4, use_container_width=True)
 
-    st.info(f"Key Takeaway: {takeaway}")
+    st.info(
+        "Key Takeaway: Merchant QR infrastructure scaled faster than traditional POS systems."
+    )
 
-    st.markdown(f"""
-    ### Banking Implication
+    st.markdown("""
+    ### Analytical Lens
 
-    {banking_implication}
+    This section evaluates how low-cost QR ecosystems
+    accelerated merchant-side payment digitisation.
     """)
 
 # ======================================================
@@ -615,20 +548,18 @@ elif section == "Merchant Digitisation":
 
 elif section == "Future Banking Scenarios":
 
-    st.subheader(dynamic_title)
+    st.subheader("Future Banking Infrastructure Outlook")
 
-    yearly_df = filtered_df.groupby("Year")[primary_chart].mean().reset_index()
+    yearly_df = filtered_df.groupby("Year")[selected_payment].mean().reset_index()
 
     fig5 = go.Figure()
 
-    for col in primary_chart:
-
-        fig5.add_trace(go.Scatter(
-            x=yearly_df["Year"],
-            y=yearly_df[col],
-            mode="lines+markers",
-            name=col
-        ))
+    fig5.add_trace(go.Scatter(
+        x=yearly_df["Year"],
+        y=yearly_df[selected_payment],
+        mode="lines+markers",
+        name=selected_payment
+    ))
 
     fig5.update_layout(
         template="plotly_dark",
@@ -637,12 +568,15 @@ elif section == "Future Banking Scenarios":
 
     st.plotly_chart(fig5, use_container_width=True)
 
-    st.info(f"Key Takeaway: {takeaway}")
+    st.info(
+        f"Key Takeaway: Future banking infrastructure may increasingly depend on {selected_payment}-driven ecosystems."
+    )
 
     st.markdown(f"""
-    ### Banking Implication
+    ### Strategic Outlook
 
-    {banking_implication}
+    This section evaluates how {selected_payment}
+    may influence future digital banking infrastructure and ecosystem economics.
     """)
 
 # ======================================================
@@ -654,5 +588,5 @@ st.markdown("---")
 st.caption(
     "Data Sources: RBI DBIE, NPCI Transaction Statistics, Banking Infrastructure Analysis"
 )
-
+```
 
