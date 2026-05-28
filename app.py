@@ -529,14 +529,81 @@ elif section == "Cash Infrastructure Transition":
 
     st.subheader("ATM vs Digital Payment Coexistence")
 
-    fig3 = px.line(
-        filtered_df,
-        x="Month_Year",
-        y=["ATM", "UPI"],
-        template="plotly_dark"
+
+fig3 = go.Figure()
+
+# ATM LINE
+
+fig3.add_trace(go.Scatter(
+    x=filtered_df["Month_Year"],
+    y=filtered_df["ATM"],
+    name="ATM Withdrawals",
+    yaxis="y1",
+    line=dict(color="#60A5FA")
+))
+
+# UPI LINE
+
+fig3.add_trace(go.Scatter(
+    x=filtered_df["Month_Year"],
+    y=filtered_df["UPI"],
+    name="UPI Transactions",
+    yaxis="y2",
+    line=dict(color="#34D399")
+))
+
+fig3.update_layout(
+    template="plotly_dark",
+    height=550,
+
+    yaxis=dict(
+        title="ATM Withdrawals"
+    ),
+
+    yaxis2=dict(
+        title="UPI Transactions",
+        overlaying="y",
+        side="right"
     )
+)
+
+
 
     fig3.update_layout(height=500)
+  
+# COVID LOCKDOWN MARKER
+
+fig3.add_vline(
+    x="2020-04-01",
+    line_dash="dash",
+    line_color="red"
+)
+
+fig3.add_annotation(
+    x="2020-04-01",
+    y=filtered_df["UPI"].max(),
+    text="COVID Lockdown",
+    showarrow=True,
+    arrowhead=1
+)
+
+# RBI STRUCTURAL BREAK
+
+fig3.add_vline(
+    x="2019-11-01",
+    line_dash="dot",
+    line_color="gold"
+)
+
+fig3.add_annotation(
+    x="2019-11-01",
+    y=filtered_df["UPI"].max()*0.7,
+    text="RBI Reporting Change",
+    showarrow=True,
+    arrowhead=1
+)
+
+
 
     st.plotly_chart(fig3, use_container_width=True)
 
