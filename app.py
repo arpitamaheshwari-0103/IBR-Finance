@@ -1,4 +1,3 @@
-```python
 import streamlit as st
 import pandas as pd
 import plotly.express as px
@@ -588,5 +587,5 @@ st.markdown("---")
 st.caption(
     "Data Sources: RBI DBIE, NPCI Transaction Statistics, Banking Infrastructure Analysis"
 )
-```
+
 
