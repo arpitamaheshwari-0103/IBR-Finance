@@ -342,24 +342,56 @@ elif research_question == "Why does cash still persist?":
 
     dynamic_title = "Cash Persistence Across a Digital Economy"
 
-    primary_chart = ["ATM"]
+  if research_question == "Is UPI replacing cash?":
 
-    insight_heading = "Infrastructure Observation"
+```
+if selected_payment == "ATM":
+    primary_chart = ["UPI", "ATM"]
+else:
+    primary_chart = [selected_payment, "ATM"]
+```
 
-    insight = """
-    Cash persistence reflects uneven banking transition,
-    informal transaction ecosystems,
-    and continued dependence on physical currency infrastructure.
-    """
+elif research_question == "Why does cash still persist?":
 
-    takeaway = """
-    ATM infrastructure remains materially relevant despite digital acceleration.
-    """
+```
+primary_chart = ["ATM"]
 
-    banking_implication = """
-    Physical banking infrastructure may remain strategically relevant
-    across hybrid banking ecosystems.
-    """
+if selected_payment != "ATM":
+    st.warning(
+        "This research question is primarily associated with ATM infrastructure behaviour."
+    )
+```
+
+elif research_question == "Is ATM infrastructure still relevant?":
+
+```
+primary_chart = ["ATM"]
+
+if selected_payment != "ATM":
+    st.warning(
+        "ATM infrastructure analysis is more strongly aligned with ATM transaction data."
+    )
+```
+
+elif research_question == "Has merchant digitisation accelerated?":
+
+```
+if selected_payment in ["POS", "UPI"]:
+    primary_chart = [selected_payment, "UPI"]
+else:
+    primary_chart = ["POS", "UPI"]
+
+    st.warning(
+        "Merchant digitisation insights are more strongly linked with POS and UPI ecosystems."
+    )
+```
+
+else:
+
+```
+primary_chart = ["UPI", "ATM", "POS", "IMPS"]
+```
+
 
 elif research_question == "Is ATM infrastructure still relevant?":
 
