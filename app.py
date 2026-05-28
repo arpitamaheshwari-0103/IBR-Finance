@@ -597,18 +597,7 @@ elif section == "Future Banking Scenarios":
     st.plotly_chart(fig5, use_container_width=True)
     future_df = yearly_df.copy()
 
-    future_df["Forecast"] = (
-        future_df[selected_payment]
-        .rolling(2)
-        .mean()
-  
-future_df = yearly_df.copy()
-
-future_df["Forecast"] = (
-    future_df[selected_payment]
-    .rolling(2)
-    .mean()
-)
+future_df["Forecast"] = future_df[selected_payment].rolling(2).mean()
 
 forecast_fig = go.Figure()
 
