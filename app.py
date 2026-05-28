@@ -12,9 +12,15 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="expanded"
 )
+
+# ======================================================
+# EXECUTIVE ALERT
+# ======================================================
+
 st.success(
     "India’s banking transformation remains hybrid: digital transaction acceleration is scaling faster than physical cash infrastructure decline."
 )
+
 # ======================================================
 # CUSTOM CSS
 # ======================================================
@@ -440,14 +446,15 @@ if section == "Executive Intelligence":
 
     {banking_implication}
     """)
-    st.markdown("""
-### Executive Observations
 
-- UPI growth accelerated structurally after COVID.
-- ATM decline remains slower than digital acceleration.
-- Merchant QR ecosystems reduced onboarding friction.
-- India’s banking transition remains coexistence-driven.
-""")
+    st.markdown("""
+    ### Executive Observations
+
+    - UPI growth accelerated structurally after COVID.
+    - ATM decline remains slower than digital acceleration.
+    - Merchant QR ecosystems reduced onboarding friction.
+    - India's banking transition remains coexistence-driven.
+    """)
 
 # ======================================================
 # DIGITAL PAYMENT SHIFT
@@ -513,15 +520,16 @@ elif section == "Cash Infrastructure Transition":
     st.info(
         "Key Takeaway: ATM decline remains materially slower than UPI acceleration."
     )
-    corr = filtered_df[["UPI","ATM","POS","IMPS"]].corr()
 
-fig_corr = px.imshow(
-    corr,
-    text_auto=True,
-    template="plotly_dark"
-)
+    corr = filtered_df[["UPI", "ATM", "POS", "IMPS"]].corr()
 
-st.plotly_chart(fig_corr, use_container_width=True)
+    fig_corr = px.imshow(
+        corr,
+        text_auto=True,
+        template="plotly_dark"
+    )
+
+    st.plotly_chart(fig_corr, use_container_width=True)
 
     st.markdown("""
     ### Analytical Lens
@@ -576,7 +584,7 @@ elif section == "Future Banking Scenarios":
         x=yearly_df["Year"],
         y=yearly_df[selected_payment],
         mode="lines+markers",
-        name=selected_payment
+        name="Actual"
     ))
 
     fig5.update_layout(
@@ -586,11 +594,40 @@ elif section == "Future Banking Scenarios":
 
     st.plotly_chart(fig5, use_container_width=True)
 
+    future_df = yearly_df.copy()
+
+    future_df["Forecast"] = (
+        future_df[selected_payment]
+        .rolling(2)
+        .mean()
+    )
+
+    forecast_fig = go.Figure()
+
+    forecast_fig.add_trace(go.Scatter(
+        x=future_df["Year"],
+        y=future_df[selected_payment],
+        mode="lines+markers",
+        name="Actual"
+    ))
+
+    forecast_fig.add_trace(go.Scatter(
+        x=future_df["Year"],
+        y=future_df["Forecast"],
+        mode="lines",
+        name="Projected Trend"
+    ))
+
+    forecast_fig.update_layout(
+        template="plotly_dark",
+        height=450
+    )
+
+    st.plotly_chart(forecast_fig, use_container_width=True)
+
     st.info(
         f"Key Takeaway: Future banking infrastructure may increasingly depend on {selected_payment}-driven ecosystems."
     )
-future_df = yearly_df.copy()
-future_df["Forecast"] = future_df[selected_payment].rolling(2).mean()
 
     st.markdown(f"""
     ### Strategic Outlook
@@ -598,19 +635,6 @@ future_df["Forecast"] = future_df[selected_payment].rolling(2).mean()
     This section evaluates how {selected_payment}
     may influence future digital banking infrastructure and ecosystem economics.
     """)
-```python
-# ======================================================
-# EXECUTIVE OBSERVATIONS
-# ======================================================
-
-st.markdown("""
-### Executive Observations
-
-- UPI growth accelerated structurally after COVID.
-- ATM decline remains slower than digital acceleration.
-- Merchant QR ecosystems reduced onboarding friction.
-- India's banking transition remains coexistence-driven.
-""")
 
 # ======================================================
 # WHY THIS RESEARCH MATTERS
@@ -622,13 +646,11 @@ st.markdown("""
 India's banking transition represents one of the world's largest real-time payment ecosystem transformations.
 
 The coexistence of digital acceleration and cash persistence has major implications for:
-- banking strategy,
-- infrastructure optimization,
-- merchant ecosystems,
-- and financial inclusion policy.
+- banking strategy
+- infrastructure optimization
+- merchant ecosystems
+- financial inclusion policy
 """)
-```
-
 
 # ======================================================
 # FOOTER
@@ -639,5 +661,6 @@ st.markdown("---")
 st.caption(
     "Data Sources: RBI DBIE, NPCI Transaction Statistics, Banking Infrastructure Analysis"
 )
+
 
 
