@@ -601,7 +601,7 @@ elif section == "Future Banking Scenarios":
         future_df[selected_payment]
         .rolling(2)
         .mean()
-   ```python
+  
 future_df = yearly_df.copy()
 
 future_df["Forecast"] = (
