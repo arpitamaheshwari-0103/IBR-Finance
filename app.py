@@ -21,10 +21,6 @@ st.set_page_config(
 st.markdown("""
 <style>
 
-html, body, [class*="css"] {
-    font-family: 'Segoe UI', sans-serif;
-}
-
 .main {
     background-color: #0B1120;
 }
@@ -37,16 +33,15 @@ h1, h2, h3, h4 {
     color: white;
 }
 
-p, label, div {
+p, div, label {
     color: #D1D5DB;
 }
 
 .metric-card {
     background-color: #172033;
-    padding: 18px;
-    border-radius: 14px;
+    padding: 16px;
+    border-radius: 12px;
     border: 1px solid #2A364D;
-    margin-bottom: 10px;
 }
 
 .signal-card {
@@ -62,12 +57,6 @@ p, label, div {
     padding: 18px;
     border-radius: 12px;
     border-left: 5px solid #3B82F6;
-    margin-top: 10px;
-}
-
-.small-text {
-    font-size: 15px;
-    line-height: 1.7;
 }
 
 </style>
@@ -79,23 +68,67 @@ p, label, div {
 
 @st.cache_data
 def load_data():
-    return pd.read_csv("payments_data.csv")
+    df = pd.read_csv("payments_data.csv")
+    return df
+
 
 df = load_data()
 
 # ======================================================
-# DATA PREPARATION
+# COLUMN STANDARDIZATION
 # ======================================================
 
-df["Month_Year"] = pd.to_datetime(df["Month_Year"])
+rename_map = {}
+
+for col in df.columns:
+
+    if "Month" in col or "Date" in col:
+        rename_map[col] = "Month_Year"
+
+    elif "UPI" in col:
+        rename_map[col] = "UPI"
+
+    elif "ATM" in col:
+        rename_map[col] = "ATM"
+
+    elif "POS" in col:
+        rename_map[col] = "POS"
+
+    elif "IMPS" in col:
+        rename_map[col] = "IMPS"
+
+
+df = df.rename(columns=rename_map)
+
+# ======================================================
+# DATE PREP
+# ======================================================
+
+if "Month_Year" in df.columns:
+    df["Month_Year"] = pd.to_datetime(df["Month_Year"])
+else:
+    st.error("Date column not found in dataset.")
+    st.stop()
+
 
 df["Year"] = df["Month_Year"].dt.year
 
-df = df.rename(columns={
-    "ATM_Withdrawals": "ATM",
-    "UPI_Transactions": "UPI",
-    "DebitCard_POS": "POS"
-})
+# ======================================================
+# REQUIRED COLUMN CHECK
+# ======================================================
+
+required_cols = ["UPI", "ATM"]
+
+for col in required_cols:
+    if col not in df.columns:
+        st.error(f"Required column missing: {col}")
+        st.stop()
+
+if "POS" not in df.columns:
+    df["POS"] = 0
+
+if "IMPS" not in df.columns:
+    df["IMPS"] = 0
 
 # ======================================================
 # SIDEBAR
@@ -129,11 +162,9 @@ filtered_df = df[
     (df["Year"] <= selected_years[1])
 ]
 
-payment_options = ["UPI", "ATM", "POS", "IMPS"]
-
 selected_payment = st.sidebar.selectbox(
     "Select Payment System",
-    payment_options
+    ["UPI", "ATM", "POS", "IMPS"]
 )
 
 research_question = st.sidebar.selectbox(
@@ -153,78 +184,70 @@ research_question = st.sidebar.selectbox(
 
 st.title("India Payments Transformation Intelligence")
 
-st.markdown("""
-### FinTech’s Contribution to Transforming Conventional Banking: The Indian Experience
-""")
+st.markdown(
+    "### FinTech’s Contribution to Transforming Conventional Banking: The Indian Experience"
+)
 
 st.markdown("""
 <div class='insight-box'>
 <h4>Core Research Framework</h4>
-<p class='small-text'>
+<p>
 India is becoming digitally transactional faster than cashless.
-Digital payment acceleration and cash persistence currently coexist across the banking ecosystem.
+Digital payment acceleration and cash persistence currently coexist.
 </p>
 </div>
 """, unsafe_allow_html=True)
 
 # ======================================================
-# KPI SECTION
+# KPI CARDS
 # ======================================================
 
 latest_value = round(filtered_df[selected_payment].iloc[-1], 2)
 
-growth = round(
-    (
-        (filtered_df[selected_payment].iloc[-1] -
-         filtered_df[selected_payment].iloc[0])
-        /
-        filtered_df[selected_payment].iloc[0]
-    ) * 100,
-    1
-)
+start_value = filtered_df[selected_payment].iloc[0]
 
-correlation = round(
-    filtered_df["UPI"].corr(filtered_df["ATM"]),
-    3
-)
+if start_value != 0:
+    growth = round(((latest_value - start_value) / start_value) * 100, 1)
+else:
+    growth = 0
 
-observations = len(filtered_df)
+correlation = round(filtered_df["UPI"].corr(filtered_df["ATM"]), 2)
 
-c1, c2, c3, c4 = st.columns(4)
+k1, k2, k3, k4 = st.columns(4)
 
-with c1:
+with k1:
     st.markdown(f"""
     <div class='metric-card'>
-        <h4>Active Payment Rail</h4>
-        <h2>{selected_payment}</h2>
-        <p>Digital ecosystem focus indicator</p>
+    <h4>Payment Rail Focus</h4>
+    <h2>{selected_payment}</h2>
+    <p>Digital ecosystem indicator</p>
     </div>
     """, unsafe_allow_html=True)
 
-with c2:
+with k2:
     st.markdown(f"""
     <div class='metric-card'>
-        <h4>Transaction Scale</h4>
-        <h2>{latest_value:,.0f}</h2>
-        <p>Behavioural adoption intensity</p>
+    <h4>Transaction Scale</h4>
+    <h2>{latest_value:,.0f}</h2>
+    <p>Behavioural adoption intensity</p>
     </div>
     """, unsafe_allow_html=True)
 
-with c3:
+with k3:
     st.markdown(f"""
     <div class='metric-card'>
-        <h4>Transformation Shift</h4>
-        <h2>{growth}%</h2>
-        <p>Infrastructure transition signal</p>
+    <h4>Transformation Shift</h4>
+    <h2>{growth}%</h2>
+    <p>Infrastructure transition signal</p>
     </div>
     """, unsafe_allow_html=True)
 
-with c4:
+with k4:
     st.markdown(f"""
     <div class='metric-card'>
-        <h4>UPI–ATM Relationship</h4>
-        <h2>{correlation}</h2>
-        <p>Hybrid banking coexistence metric</p>
+    <h4>UPI-ATM Relationship</h4>
+    <h2>{correlation}</h2>
+    <p>Hybrid banking coexistence metric</p>
     </div>
     """, unsafe_allow_html=True)
 
@@ -276,130 +299,51 @@ st.markdown("---")
 
 if research_question == "Is UPI replacing cash?":
 
-    dynamic_title = "Digital Adoption vs Cash Persistence"
-
-    dynamic_insight = """
-    Digital transaction growth is scaling materially faster than cash infrastructure withdrawal.
-    This suggests behavioural digitisation without full cash elimination.
-    """
-
-    chart_type = "UPI_ATM"
+    insight = "Digital transaction growth is accelerating materially faster than ATM infrastructure withdrawal."
 
 elif research_question == "Why does cash still persist?":
 
-    dynamic_title = "Cash Persistence Across a Digital Economy"
-
-    dynamic_insight = """
-    ATM dependence remains structurally significant despite UPI acceleration,
-    indicating uneven banking transition across customer and merchant ecosystems.
-    """
-
-    chart_type = "ATM_ONLY"
+    insight = "Cash persistence reflects uneven banking transition, informal transaction dependency, and infrastructure coexistence."
 
 elif research_question == "Is ATM infrastructure still relevant?":
 
-    dynamic_title = "Residual Dependence on Physical Banking Infrastructure"
-
-    dynamic_insight = """
-    ATM infrastructure remains economically relevant because India's banking transition
-    remains hybrid rather than fully substitutive.
-    """
-
-    chart_type = "ATM_ONLY"
+    insight = "ATM infrastructure remains strategically relevant due to hybrid banking behaviour across India."
 
 elif research_question == "Has merchant digitisation accelerated?":
 
-    dynamic_title = "Merchant-Side Payment Infrastructure Transformation"
-
-    dynamic_insight = """
-    QR-led merchant onboarding scaled faster than traditional POS expansion,
-    enabling low-cost payment digitisation.
-    """
-
-    chart_type = "POS_UPI"
+    insight = "QR-led merchant onboarding scaled significantly faster than traditional POS deployment."
 
 else:
 
-    dynamic_title = "Hidden Transformation Dynamics"
-
-    dynamic_insight = """
-    India is becoming digitally transactional faster than cashless.
-    Digital adoption and cash persistence currently coexist.
-    """
-
-    chart_type = "ALL"
+    insight = "India is becoming digitally transactional faster than cashless across the banking ecosystem."
 
 st.markdown(f"""
 <div class='insight-box'>
 <h4>Structural Finding</h4>
-<p class='small-text'>{dynamic_insight}</p>
+<p>{insight}</p>
 </div>
 """, unsafe_allow_html=True)
 
 # ======================================================
-# EXECUTIVE INTELLIGENCE
+# PAGE 1
 # ======================================================
 
 if section == "Executive Intelligence":
 
-    st.subheader(dynamic_title)
+    st.subheader("Payments Transformation Overview")
 
     fig = go.Figure()
 
-    if chart_type == "UPI_ATM":
-
-        fig.add_trace(go.Scatter(
-            x=filtered_df["Month_Year"],
-            y=filtered_df["UPI"],
-            name="UPI",
-            mode="lines"
-        ))
-
-        fig.add_trace(go.Scatter(
-            x=filtered_df["Month_Year"],
-            y=filtered_df["ATM"],
-            name="ATM",
-            mode="lines"
-        ))
-
-    elif chart_type == "ATM_ONLY":
-
-        fig.add_trace(go.Scatter(
-            x=filtered_df["Month_Year"],
-            y=filtered_df["ATM"],
-            name="ATM",
-            mode="lines"
-        ))
-
-    elif chart_type == "POS_UPI":
-
-        fig.add_trace(go.Scatter(
-            x=filtered_df["Month_Year"],
-            y=filtered_df["POS"],
-            name="POS",
-            mode="lines"
-        ))
-
-        fig.add_trace(go.Scatter(
-            x=filtered_df["Month_Year"],
-            y=filtered_df["UPI"],
-            name="UPI",
-            mode="lines"
-        ))
-
-    else:
-
-        for col in ["UPI", "ATM", "POS", "IMPS"]:
-            fig.add_trace(go.Scatter(
-                x=filtered_df["Month_Year"],
-                y=filtered_df[col],
-                name=col,
-                mode="lines"
-            ))
+    fig.add_trace(go.Scatter(
+        x=filtered_df["Month_Year"],
+        y=filtered_df[selected_payment],
+        mode="lines",
+        name=selected_payment
+    ))
 
     fig.update_layout(
         template="plotly_dark",
-        height=520
+        height=500
     )
 
     st.plotly_chart(fig, use_container_width=True)
@@ -408,16 +352,33 @@ if section == "Executive Intelligence":
         "Key Takeaway: Banking transformation in India remains hybrid rather than fully digital."
     )
 
+    st.subheader("Comparative Transformation Dynamics")
+
+    compare_fig = go.Figure()
+
+    for col in ["UPI", "ATM", "POS", "IMPS"]:
+        compare_fig.add_trace(go.Scatter(
+            x=filtered_df["Month_Year"],
+            y=filtered_df[col],
+            mode="lines",
+            name=col
+        ))
+
+    compare_fig.update_layout(
+        template="plotly_dark",
+        height=450
+    )
+
+    st.plotly_chart(compare_fig, use_container_width=True)
+
     st.markdown("""
     ### Banking Implication
 
-    Banks may increasingly optimize physical infrastructure
-    while reallocating strategic focus toward transaction ecosystems,
-    merchant integration, and digital behavioural data.
+    Banks may increasingly optimize physical infrastructure while reallocating strategic focus toward digital transaction ecosystems.
     """)
 
 # ======================================================
-# DIGITAL PAYMENT SHIFT
+# PAGE 2
 # ======================================================
 
 elif section == "Digital Payment Shift":
@@ -451,15 +412,8 @@ elif section == "Digital Payment Shift":
         "Key Takeaway: COVID accelerated structural behavioural transformation in digital payments."
     )
 
-    st.markdown("""
-    ### Banking Implication
-
-    Post-pandemic payment behaviour indicates durable ecosystem transformation
-    rather than temporary digital adoption spikes.
-    """)
-
 # ======================================================
-# CASH INFRASTRUCTURE
+# PAGE 3
 # ======================================================
 
 elif section == "Cash Infrastructure Transition":
@@ -478,18 +432,11 @@ elif section == "Cash Infrastructure Transition":
     st.plotly_chart(fig3, use_container_width=True)
 
     st.info(
-        "Key Takeaway: Cash infrastructure withdrawal is materially slower than digital acceleration."
+        "Key Takeaway: ATM infrastructure decline remains materially slower than digital transaction acceleration."
     )
 
-    st.markdown("""
-    ### Banking Implication
-
-    Physical banking infrastructure may remain strategically relevant
-    despite accelerating transaction digitisation.
-    """)
-
 # ======================================================
-# MERCHANT DIGITISATION
+# PAGE 4
 # ======================================================
 
 elif section == "Merchant Digitisation":
@@ -511,15 +458,8 @@ elif section == "Merchant Digitisation":
         "Key Takeaway: QR-led merchant onboarding scaled faster than traditional POS deployment."
     )
 
-    st.markdown("""
-    ### Banking Implication
-
-    Merchant payment ecosystems may increasingly determine
-    transaction data ownership and customer engagement economics.
-    """)
-
 # ======================================================
-# FUTURE BANKING SCENARIOS
+# PAGE 5
 # ======================================================
 
 elif section == "Future Banking Scenarios":
@@ -548,13 +488,6 @@ elif section == "Future Banking Scenarios":
         "Key Takeaway: India's banking future may become increasingly digital-first while retaining hybrid support systems."
     )
 
-    st.markdown("""
-    ### Banking Implication
-
-    Future banking strategy may increasingly shift toward
-    low-cost transaction ecosystems and merchant integration infrastructure.
-    """)
-
 # ======================================================
 # FOOTER
 # ======================================================
@@ -565,3 +498,4 @@ st.caption(
     "Data Sources: RBI DBIE, NPCI Transaction Statistics, Banking Infrastructure Analysis"
 )
 ```
+
