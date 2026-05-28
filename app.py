@@ -570,6 +570,7 @@ elif section == "Merchant Digitisation":
     accelerated merchant-side payment digitisation.
     """)
 
+
 # ======================================================
 # FUTURE BANKING SCENARIOS
 # ======================================================
@@ -579,6 +580,8 @@ elif section == "Future Banking Scenarios":
     st.subheader("Future Banking Infrastructure Outlook")
 
     yearly_df = filtered_df.groupby("Year")[selected_payment].mean().reset_index()
+
+    # Actual Trend
 
     fig5 = go.Figure()
 
@@ -593,7 +596,6 @@ elif section == "Future Banking Scenarios":
         template="plotly_dark",
         height=500
     )
-
 
     st.plotly_chart(fig5, use_container_width=True)
 
@@ -630,6 +632,9 @@ elif section == "Future Banking Scenarios":
 
     st.plotly_chart(forecast_fig, use_container_width=True)
 
+    st.info(
+        f"Key Takeaway: Future banking infrastructure may increasingly depend on {selected_payment}-driven ecosystems."
+    )
 
     st.markdown(f"""
     ### Strategic Outlook
@@ -637,6 +642,8 @@ elif section == "Future Banking Scenarios":
     This section evaluates how {selected_payment}
     may influence future digital banking infrastructure and ecosystem economics.
     """)
+
+
 
 # ======================================================
 # WHY THIS RESEARCH MATTERS
