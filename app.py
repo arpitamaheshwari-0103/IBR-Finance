@@ -105,8 +105,8 @@ possible_cols = {
 }
 
 for col in list(df.columns):
-if col in possible_cols:
-df.rename(columns={col: possible_cols[col]}, inplace=True)
+    if col in possible_cols:
+        df.rename(columns={col: possible_cols[col]}, inplace=True)
 
 # Detect date column
 
